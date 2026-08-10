@@ -1,2 +1,2 @@
-# simarimoi
-sistem informasi pengajuan dan pemantauan produk hukum daerah
+# SIMARIMOI
+sistem Informasi Pembentukan produk hukum daerah
