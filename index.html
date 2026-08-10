@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIMARIMOI — Sistem Informasi Pembentukan Produk Hukum Daerah</title>
+    <title>SI-PEDA — Sistem Informasi Pembentukan Produk Hukum Daerah</title>
     <style>
         :root {
             --utama: #0F4C81;
@@ -13,13 +13,79 @@
             --terang: #F8F9FA;
             --gelap: #2C3E50;
             --batas: #E0E0E0;
+            --samping: #1A2938;
+            --samping-aktif: #0F4C81;
         }
         * {margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif;}
         body {background: #EFF2F5; color: var(--gelap); line-height: 1.6;}
-        header {background: linear-gradient(135deg, var(--utama), #1E6FB8); color: white; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,.15);}
-        .container {max-width: 1200px; margin: 0 auto; padding: 1rem;}
-        .judul-sistem {font-size: 1.8rem; font-weight: 700;}
-        .kepanjangan {font-size: 0.95rem; opacity: 0.9; margin-top: 0.25rem;}
+
+        /* === HALAMAN LOGIN === */
+        .wadah-login {
+            display: flex; align-items: center; justify-content: center;
+            min-height: 100vh; background: linear-gradient(135deg, var(--utama), #1E6FB8);
+            padding: 1rem;
+        }
+        .kotak-login {
+            background: white; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,.2);
+            padding: 2.5rem; width: 100%; max-width: 420px; text-align: center;
+        }
+        .kotak-login h1 {color: var(--utama); margin-bottom: 0.5rem; font-size: 2rem; font-weight: 800;}
+        .kotak-login .kepanjangan {color: #6C757D; font-size: 0.9rem; margin-bottom: 1.8rem; line-height: 1.4;}
+        .kotak-login input {
+            width: 100%; padding: 0.85rem; margin-bottom: 1rem;
+            border: 1px solid var(--batas); border-radius: 6px; font-size: 1rem;
+        }
+        .kotak-login input:focus {outline: none; border-color: var(--utama); box-shadow: 0 0 0 3px rgba(15,76,129,0.1);}
+        .kotak-login button {
+            width: 100%; padding: 0.85rem; border: none; border-radius: 6px;
+            background: var(--utama); color: white; font-size: 1rem; font-weight: 600;
+            cursor: pointer; transition: background 0.25s;
+        }
+        .kotak-login button:hover {background: #0C3C68;}
+        .pesan-salah {color: var(--bahaya); margin-top: 1rem; font-weight: 500; display: none;}
+
+        /* === TATA LETAK UTAMA: MENU SAMPING + ISI === */
+        .wadah-utama {display: flex; min-height: 100vh;}
+        .menu-samping {
+            width: 260px; background: var(--samping); color: white; padding: 1.2rem 0;
+            position: fixed; height: 100vh; overflow-y: auto;
+            transition: width 0.3s;
+        }
+        .menu-samping .logo {
+            padding: 1rem 1.2rem; border-bottom: 1px solid rgba(255,255,255,.1); margin-bottom: 1rem;
+        }
+        .menu-samping .logo h2 {font-size: 1.4rem; margin-bottom: 0.2rem;}
+        .menu-samping .logo p {font-size: 0.8rem; opacity: 0.7;}
+        .menu-samping ul {list-style: none;}
+        .menu-samping ul li {margin: 0.25rem 0;}
+        .menu-samping ul li a {
+            display: block; padding: 0.75rem 1.2rem; color: rgba(255,255,255,.8);
+            text-decoration: none; font-size: 0.93rem; border-left: 3px solid transparent;
+            transition: all 0.2s;
+        }
+        .menu-samping ul li a:hover,
+        .menu-samping ul li a.aktif {
+            background: rgba(15,76,129,.4); color: white; border-left-color: #4A90E2;
+        }
+        .menu-samping ul li ul {margin-left: 1rem; margin-top: 0.25rem;}
+        .menu-samping ul li ul li a {padding: 0.5rem 1rem; font-size: 0.88rem;}
+        .isi-utama {margin-left: 260px; flex: 1;}
+        .baris-atas {
+            background: white; padding: 1rem 1.5rem; display: flex; justify-content: space-between;
+            align-items: center; box-shadow: 0 1px 4px rgba(0,0,0,.08);
+        }
+        .baris-atas h3 {font-size: 1.1rem; color: var(--utama);}
+        .tombol-keluar {background: var(--bahaya); color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-weight: 600;}
+        .tombol-keluar:hover {background: #A93226;}
+        .konten {padding: 1.5rem;}
+
+        /* === KARDUK RINGKASAN DI DASHBOARD === */
+        .baris-kartu {display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 2rem;}
+        .kartu-ringkas {background: white; border-radius: 10px; padding: 1.2rem; box-shadow: 0 2px 6px rgba(0,0,0,.08); text-align: center;}
+        .kartu-ringkas h4 {font-size: 1.8rem; color: var(--utama); margin-bottom: 0.3rem;}
+        .kartu-ringkas p {font-size: 0.9rem; color: #6C757D;}
+
+        /* === ISI LAINNYA === */
         .kartu {background: white; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,.08); padding: 1.5rem; margin-bottom: 1.5rem;}
         .tombol {padding: 0.6rem 1.2rem; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.25s; text-decoration: none; display: inline-block;}
         .tombol-utama {background: var(--utama); color: white;}
@@ -45,125 +111,262 @@
         .progress-latar {height: 8px; background: #E9ECEF; border-radius: 4px; margin-top: 0.3rem;}
         .progress-isi {height: 100%; background: linear-gradient(90deg, var(--utama), var(--sekunder)); border-radius: 4px; transition: width 0.4s ease;}
         .sembunyi {display: none !important;}
-        .filter-baris {display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center; margin-bottom: 1rem;}
-        .filter-baris select, .filter-baris input {max-width: 180px;}
         .modal-posisi {position: fixed; inset: 0; background: rgba(0,0,0,.5); display: flex; align-items: center; justify-content: center; z-index: 999;}
         .modal-isi {background: white; border-radius: 10px; padding: 1.8rem; max-width: 650px; width: 92%; max-height: 90vh; overflow-y: auto;}
         .tutup {float: right; font-size: 1.4rem; cursor: pointer; color: #888; margin-top: -0.5rem;}
         .tutup:hover {color: #000;}
         .persen {font-weight: 700; color: var(--sekunder); font-size: 0.9rem;}
         footer {text-align: center; padding: 1.2rem; color: #6C757D; font-size: 0.88rem; margin-top: 2rem;}
-        @media(max-width:768px) {th, td {padding: 0.6rem 0.45rem; font-size: 0.85rem;}}
+        .halaman {display: none;}
+        .halaman.aktif {display: block;}
+        .info-bantuan {line-height: 1.8; font-size: 0.95rem;}
+        .catatan-rekap {background: #E8F4F8; border-left: 4px solid var(--sekunder); padding: 1rem; border-radius: 6px; margin-bottom: 1rem;}
+        @media(max-width:900px) {
+            .menu-samping {position: relative; width: 100%; height: auto;}
+            .isi-utama {margin-left: 0;}
+        }
     </style>
 </head>
 <body>
 
-<header>
-    <div class="container">
-        <h1 class="judul-sistem">📋 SIMARIMOI</h1>
+<!-- =================================== -->
+<!-- HALAMAN LOGIN                       -->
+<!-- =================================== -->
+<div id="halamanLogin" class="wadah-login">
+    <div class="kotak-login">
+        <h1>⚔️ SI-PEDA</h1>
         <p class="kepanjangan">Sistem Informasi Pembentukan Produk Hukum Daerah<br>Biro Hukum Provinsi Maluku Utara</p>
-    </div>
-</header>
-
-<div class="container">
-
-    <!-- Form Pengajuan -->
-    <div class="kartu">
-        <h2>Ajukan Produk Hukum Baru</h2>
-        <form id="formAjuan">
-            <div class="baris">
-                <div class="kolom">
-                    <label>Jenis Produk Hukum *</label>
-                    <select id="jenis" required>
-                        <option value="">— Pilih —</option>
-                        <option value="Peraturan Daerah">Peraturan Daerah (Perda)</option>
-                        <option value="Peraturan Gubernur">Peraturan Gubernur (Pergub)</option>
-                        <option value="Surat Keputusan">Surat Keputusan</option>
-                    </select>
-                </div>
-                <div class="kolom">
-                    <label>Nomor / Tahun</label>
-                    <input type="text" id="nomor" placeholder="Contoh: 12 / 2026">
-                </div>
-                <div class="kolom">
-                    <label>Tahun</label>
-                    <input type="number" id="tahun" value="2026" min="2020" max="2030">
-                </div>
-            </div>
-            <div class="baris">
-                <div class="kolom" style="flex: 2 1 300px;">
-                    <label>Judul / Rancangan Produk Hukum *</label>
-                    <input type="text" id="judul" placeholder="Judul lengkap rancangan produk hukum" required>
-                </div>
-            </div>
-            <div class="baris">
-                <div class="kolom">
-                    <label>Penanggung Jawab Pembuatan *</label>
-                    <input type="text" id="penanggungJawab" placeholder="Nama pegawai / tim yang bertanggung jawab" required>
-                </div>
-                <div class="kolom">
-                    <label>Unit Kerja / Bagian</label>
-                    <input type="text" id="unitKerja" placeholder="Misal: Bagian Perundang-undangan">
-                </div>
-            </div>
-            <div class="baris">
-                <div class="kolom" style="flex: 2 1 300px;">
-                    <label>Uraian / Keterangan Singkat</label>
-                    <textarea id="uraian" rows="3" placeholder="Latar belakang atau maksud rancangan"></textarea>
-                </div>
-            </div>
-            <button type="submit" class="tombol tombol-utama">✅ Simpan Ajuan</button>
+        <form id="formLogin">
+            <input type="text" id="userNama" placeholder="Nama Pengguna" required>
+            <input type="password" id="kataSandi" placeholder="Kata Sandi" required>
+            <button type="submit">🔐 Masuk ke Sistem</button>
+            <div id="pesanSalah" class="pesan-salah">❌ Nama pengguna atau kata sandi salah!</div>
         </form>
     </div>
-
-    <!-- Filter & Pencarian -->
-    <div class="kartu">
-        <h2>Daftar & Pemantauan Produk Hukum</h2>
-        <div class="filter-baris">
-            <label>Filter:</label>
-            <select id="filterJenis">
-                <option value="">Semua Jenis</option>
-                <option value="Peraturan Daerah">Perda</option>
-                <option value="Peraturan Gubernur">Pergub</option>
-                <option value="Surat Keputusan">Surat Keputusan</option>
-            </select>
-            <select id="filterStatus">
-                <option value="">Semua Status</option>
-                <option value="Diusulkan">Diusulkan</option>
-                <option value="Penyusunan">Penyusunan</option>
-                <option value="Pembahasan">Pembahasan</option>
-                <option value="Ditetapkan">Ditetapkan</option>
-                <option value="Diundangkan">Diundangkan</option>
-            </select>
-            <input type="text" id="cari" placeholder="Cari judul / penanggung jawab...">
-        </div>
-
-        <!-- Tabel Daftar -->
-        <div style="overflow-x:auto;">
-            <table>
-                <thead>
-                    <tr>
-                        <th>No</th>
-                        <th>Jenis</th>
-                        <th>Judul Produk Hukum</th>
-                        <th>Penanggung Jawab</th>
-                        <th>Status & Progres</th>
-                        <th>Aksi</th>
-                    </tr>
-                </thead>
-                <tbody id="daftarAjuan">
-                    <!-- Data dimuat lewat JS -->
-                </tbody>
-            </table>
-        </div>
-    </div>
-
 </div>
 
-<footer>
-    SIMARIMOI — Sistem Informasi Pembentukan Produk Hukum Daerah<br>
-    Biro Hukum Provinsi Maluku Utara &copy; 2026
-</footer>
+<!-- =================================== -->
+<!-- HALAMAN UTAMA: MENU SAMPING + ISI  -->
+<!-- =================================== -->
+<div id="halamanUtama" class="sembunyi wadah-utama">
+
+    <!-- === MENU SAMPING KIRI === -->
+    <nav class="menu-samping">
+        <div class="logo">
+            <h2>⚔️ SI-PEDA</h2>
+            <p>Biro Hukum Provinsi Maluku Utara</p>
+        </div>
+        <ul>
+            <li><a href="#" onclick="tampilkanHalaman('dashboard'); return false;" class="aktif">📊 Dashboard</a></li>
+            <li><a href="#" onclick="tampilkanHalaman('ajuan'); return false;">➕ Ajukan Produk Hukum Baru</a></li>
+            <li>
+                <a href="#">🔍 Identifikasi PHD ▾</a>
+                <ul>
+                    <li><a href="#" onclick="tampilkanHalaman('daftar','Diusulkan'); return false;">➤ Diusulkan</a></li>
+                    <li><a href="#" onclick="tampilkanHalaman('daftar','Penyusunan'); return false;">➤ Penyusunan</a></li>
+                    <li><a href="#" onclick="tampilkanHalaman('daftar','Pembahasan'); return false;">➤ Pembahasan</a></li>
+                    <li><a href="#" onclick="tampilkanHalaman('daftar','Diproses'); return false;">➤ Diproses</a></li>
+                    <li><a href="#" onclick="tampilkanHalaman('daftar','Ditetapkan'); return false;">➤ Ditetapkan</a></li>
+                    <li><a href="#" onclick="tampilkanHalaman('daftar','Diundangkan'); return false;">➤ Diundangkan</a></li>
+                </ul>
+            </li>
+            <li>
+                <a href="#">📑 Inventarisasi PHD ▾</a>
+                <ul>
+                    <li><a href="#" onclick="tampilkanHalaman('inventarisasi','Peraturan Daerah'); return false;">➤ Perda</a></li>
+                    <li><a href="#" onclick="tampilkanHalaman('inventarisasi','Peraturan Gubernur'); return false;">➤ Pergub</a></li>
+                    <li><a href="#" onclick="tampilkanHalaman('inventarisasi','Surat Keputusan'); return false;">➤ SK</a></li>
+                </ul>
+            </li>
+            <li>
+                <a href="#">❓ Pusat Bantuan ▾</a>
+                <ul>
+                    <li><a href="#" onclick="tampilkanHalaman('kontak'); return false;">➤ Kontak</a></li>
+                </ul>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- === ISI UTAMA === -->
+    <main class="isi-utama">
+        <div class="baris-atas">
+            <h3 id="judulHalaman">📊 Dashboard — Rekapitulasi Produk Hukum Daerah</h3>
+            <button class="tombol-keluar" onclick="keluarSistem()">🚪 Keluar</button>
+        </div>
+        <div class="konten">
+
+            <!-- === HALAMAN: DASHBOARD === -->
+            <div id="hal-dashboard" class="halaman aktif">
+                <div class="baris-kartu">
+                    <div class="kartu-ringkas">
+                        <h4 id="jmlSemua">0</h4>
+                        <p>Semua Ajuan</p>
+                    </div>
+                    <div class="kartu-ringkas">
+                        <h4 id="jmlDiusulkan">0</h4>
+                        <p>Diusulkan</p>
+                    </div>
+                    <div class="kartu-ringkas">
+                        <h4 id="jmlPenyusunan">0</h4>
+                        <p>Penyusunan</p>
+                    </div>
+                    <div class="kartu-ringkas">
+                        <h4 id="jmlPembahasan">0</h4>
+                        <p>Pembahasan</p>
+                    </div>
+                    <div class="kartu-ringkas">
+                        <h4 id="jmlDitetapkan">0</h4>
+                        <p>Ditetapkan</p>
+                    </div>
+                    <div class="kartu-ringkas">
+                        <h4 id="jmlSelesai">0</h4>
+                        <p>Diundangkan</p>
+                    </div>
+                </div>
+                <div class="kartu">
+                    <h3>Daftar Seluruh Produk Hukum Daerah</h3>
+                    <div style="overflow-x:auto; margin-top:1rem;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>No</th>
+                                    <th>Jenis</th>
+                                    <th>Judul Produk Hukum</th>
+                                    <th>Penanggung Jawab</th>
+                                    <th>Status & Progres</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="daftarSemua">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- === HALAMAN: AJUKAN BARU === -->
+            <div id="hal-ajuan" class="halaman">
+                <div class="kartu">
+                    <h2>Ajukan Produk Hukum Baru</h2>
+                    <form id="formAjuan">
+                        <div class="baris">
+                            <div class="kolom">
+                                <label>Jenis Produk Hukum *</label>
+                                <select id="jenis" required>
+                                    <option value="">— Pilih —</option>
+                                    <option value="Peraturan Daerah">Peraturan Daerah (Perda)</option>
+                                    <option value="Peraturan Gubernur">Peraturan Gubernur (Pergub)</option>
+                                    <option value="Surat Keputusan">Surat Keputusan</option>
+                                </select>
+                            </div>
+                            <div class="kolom">
+                                <label>Nomor / Tahun</label>
+                                <input type="text" id="nomor" placeholder="Contoh: 12 / 2026">
+                            </div>
+                            <div class="kolom">
+                                <label>Tahun</label>
+                                <input type="number" id="tahun" value="2026" min="2020" max="2030">
+                            </div>
+                        </div>
+                        <div class="baris">
+                            <div class="kolom" style="flex: 2 1 300px;">
+                                <label>Judul / Rancangan Produk Hukum *</label>
+                                <input type="text" id="judul" placeholder="Judul lengkap rancangan produk hukum" required>
+                            </div>
+                        </div>
+                        <div class="baris">
+                            <div class="kolom">
+                                <label>Penanggung Jawab Pembuatan *</label>
+                                <input type="text" id="penanggungJawab" placeholder="Nama pegawai / tim yang bertanggung jawab" required>
+                            </div>
+                            <div class="kolom">
+                                <label>Unit Kerja / Bagian</label>
+                                <input type="text" id="unitKerja" placeholder="Misal: Bagian Perundang-undangan">
+                            </div>
+                        </div>
+                        <div class="baris">
+                            <div class="kolom" style="flex: 2 1 300px;">
+                                <label>Uraian / Keterangan Singkat</label>
+                                <textarea id="uraian" rows="3" placeholder="Latar belakang atau maksud rancangan"></textarea>
+                            </div>
+                        </div>
+                        <button type="submit" class="tombol tombol-utama">✅ Simpan Ajuan</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- === HALAMAN: DAFTAR BERDASARKAN STATUS === -->
+            <div id="hal-daftar" class="halaman">
+                <div class="kartu">
+                    <h2 id="judulDaftar">Daftar Produk Hukum</h2>
+                    <div style="overflow-x:auto; margin-top:1rem;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>No</th>
+                                    <th>Jenis</th>
+                                    <th>Judul Produk Hukum</th>
+                                    <th>Penanggung Jawab</th>
+                                    <th>Status & Progres</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="isiDaftar">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- === HALAMAN: INVENTARISASI PHD === -->
+            <div id="hal-inventarisasi" class="halaman">
+                <div class="kartu">
+                    <h2 id="judulInventarisasi">Inventarisasi Produk Hukum Daerah</h2>
+                    <div class="catatan-rekap">
+                        <strong>📌 Rekapitulasi:</strong> Menampilkan daftar produk hukum yang telah <strong>selesai diundangkan</strong> dan resmi berlaku.
+                        <br>Jumlah: <strong id="jmlInventarisasi">0</strong> produk hukum.
+                    </div>
+                    <div style="overflow-x:auto; margin-top:1rem;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>No</th>
+                                    <th>Nomor & Tahun</th>
+                                    <th>Judul Produk Hukum</th>
+                                    <th>Tanggal Diundangkan</th>
+                                    <th>Penanggung Jawab</th>
+                                </tr>
+                            </thead>
+                            <tbody id="isiInventarisasi">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- === HALAMAN: KONTAK / BANTUAN === -->
+            <div id="hal-kontak" class="halaman">
+                <div class="kartu">
+                    <h2>📞 Pusat Bantuan — Kontak</h2>
+                    <div class="info-bantuan" style="margin-top:1.5rem;">
+                        <p><strong>SI-PEDA</strong> — Sistem Informasi Pembentukan Produk Hukum Daerah</p>
+                        <p>Biro Hukum Provinsi Maluku Utara</p>
+                        <br>
+                        <p>📍 <strong>Alamat:</strong> Jl. Raya Sofifi, Kota Sofifi, Provinsi Maluku Utara</p>
+                        <p>📞 <strong>Telepon:</strong> (0921) XXXXXX</p>
+                        <p>📧 <strong>Email:</strong> birohukum@malukuutara.go.id</p>
+                        <p>🕐 <strong>Jam Kerja:</strong> Senin – Jumat, 07.30 – 16.00 WIT</p>
+                        <br>
+                        <p style="color:#6C757D; font-style:italic;">Untuk kendala teknis atau pertanyaan mengenai penggunaan sistem, silakan hubungi Biro Hukum pada jam kerja.</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+</div>
+<!-- AKHIR HALAMAN UTAMA -->
 
 <!-- Modal Ubah Status -->
 <div id="modalUbahStatus" class="modal-posisi sembunyi">
@@ -178,8 +381,9 @@
                     <option value="Diusulkan">1. Diusulkan — Ajuan Diterima</option>
                     <option value="Penyusunan">2. Penyusunan — Penyusunan Naskah</option>
                     <option value="Pembahasan">3. Pembahasan — Pembahasan & Penyempurnaan</option>
-                    <option value="Ditetapkan">4. Ditetapkan — Penandatanganan</option>
-                    <option value="Diundangkan">5. Diundangkan — Selesai & Dipublikasikan</option>
+                    <option value="Diproses">4. Diproses — Dalam Penanganan</option>
+                    <option value="Ditetapkan">5. Ditetapkan — Penandatanganan</option>
+                    <option value="Diundangkan">6. Diundangkan — Selesai & Dipublikasikan</option>
                 </select>
             </div>
         </div>
@@ -196,26 +400,100 @@
 </div>
 
 <script>
-const KUNCI_PENYIMPANAN = 'simarimoi_data_produk_hukum';
-const TAHAPAN = ['Diusulkan','Penyusunan','Pembahasan','Ditetapkan','Diundangkan'];
+// === DATA LOGIN ===
+const NAMA_PENGGUNA = "admin";
+const KATA_SANDI = "birohukum123";
+
+const KUNCI_PENYIMPANAN = 'sipeda_data_produk_hukum';
+const TAHAPAN = ['Diusulkan','Penyusunan','Pembahasan','Diproses','Ditetapkan','Diundangkan'];
 let dataProdukHukum = [];
 let indeksDiedit = null;
 
 window.onload = function(){
-    muatData();
-    tampilkanDaftar();
+    if(localStorage.getItem('sipeda_login') === 'ok') tampilkanHalamanUtama();
+    document.getElementById('formLogin').addEventListener('submit', fungsiLogin);
     document.getElementById('formAjuan').addEventListener('submit', simpanAjuan);
-    document.getElementById('filterJenis').onchange = tampilkanDaftar;
-    document.getElementById('filterStatus').onchange = tampilkanDaftar;
-    document.getElementById('cari').oninput = tampilkanDaftar;
 };
 
+// === FUNGSI LOGIN ===
+function fungsiLogin(e){
+    e.preventDefault();
+    let user = document.getElementById('userNama').value.trim();
+    let sandi = document.getElementById('kataSandi').value;
+    if(user === NAMA_PENGGUNA && sandi === KATA_SANDI){
+        localStorage.setItem('sipeda_login', 'ok');
+        tampilkanHalamanUtama();
+    } else {
+        document.getElementById('pesanSalah').style.display = 'block';
+        document.getElementById('kataSandi').value = '';
+    }
+}
+
+function tampilkanHalamanUtama(){
+    document.getElementById('halamanLogin').classList.add('sembunyi');
+    document.getElementById('halamanUtama').classList.remove('sembunyi');
+    muatData();
+    tampilkanHalaman('dashboard');
+}
+
+function keluarSistem(){
+    localStorage.removeItem('sipeda_login');
+    document.getElementById('halamanUtama').classList.add('sembunyi');
+    document.getElementById('halamanLogin').classList.remove('sembunyi');
+    document.getElementById('userNama').value = '';
+    document.getElementById('kataSandi').value = '';
+    document.getElementById('pesanSalah').style.display = 'none';
+}
+
+// === FUNGSI PILIH HALAMAN ===
+let filterAktif = null;
+function tampilkanHalaman(nama, nilai){
+    filterAktif = null;
+    document.querySelectorAll('.halaman').forEach(h=>h.classList.remove('aktif'));
+    document.querySelectorAll('.menu-samping a').forEach(a=>a.classList.remove('aktif'));
+
+    if(nama === 'dashboard'){
+        document.getElementById('judulHalaman').textContent = '📊 Dashboard — Rekapitulasi Produk Hukum Daerah';
+        document.getElementById('hal-dashboard').classList.add('aktif');
+        muatRekapitulasi(); tampilkanDaftarUmum();
+    } else if(nama === 'ajuan'){
+        document.getElementById('judulHalaman').textContent = '➕ Ajukan Produk Hukum Baru';
+        document.getElementById('hal-ajuan').classList.add('aktif');
+    } else if(nama === 'daftar'){
+        filterAktif = {jenis:'status', nilai:nilai};
+        document.getElementById('judulHalaman').textContent = '🔍 Identifikasi PHD — '+nilai;
+        document.getElementById('judulDaftar').textContent = 'Daftar Produk Hukum: '+nilai;
+        document.getElementById('hal-daftar').classList.add('aktif');
+        tampilkanDaftarTerfilter();
+    } else if(nama === 'inventarisasi'){
+        filterAktif = {jenis:'inventarisasi', nilai:nilai};
+        let namaJenis = nilai.includes('Daerah') ? 'Perda' : nilai.includes('Gubernur') ? 'Pergub' : 'Surat Keputusan';
+        document.getElementById('judulHalaman').textContent = '📑 Inventarisasi PHD — '+namaJenis;
+        document.getElementById('judulInventarisasi').textContent = 'Daftar Produk Hukum Yang Sudah Diundangkan: '+namaJenis;
+        document.getElementById('hal-inventarisasi').classList.add('aktif');
+        tampilkanInventarisasi();
+    } else if(nama === 'kontak'){
+        document.getElementById('judulHalaman').textContent = '❓ Pusat Bantuan — Kontak';
+        document.getElementById('hal-kontak').classList.add('aktif');
+    }
+}
+
+// === FUNGSI DATA ===
 function muatData(){
     let simpanan = localStorage.getItem(KUNCI_PENYIMPANAN);
     if(simpanan) dataProdukHukum = JSON.parse(simpanan);
 }
 function simpanData(){
     localStorage.setItem(KUNCI_PENYIMPANAN, JSON.stringify(dataProdukHukum));
+}
+
+function muatRekapitulasi(){
+    document.getElementById('jmlSemua').textContent = dataProdukHukum.length;
+    document.getElementById('jmlDiusulkan').textContent = dataProdukHukum.filter(d=>d.status==='Diusulkan').length;
+    document.getElementById('jmlPenyusunan').textContent = dataProdukHukum.filter(d=>d.status==='Penyusunan').length;
+    document.getElementById('jmlPembahasan').textContent = dataProdukHukum.filter(d=>d.status==='Pembahasan').length;
+    document.getElementById('jmlDitetapkan').textContent = dataProdukHukum.filter(d=>d.status==='Ditetapkan').length;
+    document.getElementById('jmlSelesai').textContent = dataProdukHukum.filter(d=>d.status==='Diundangkan').length;
 }
 
 function simpanAjuan(e){
@@ -233,7 +511,8 @@ function simpanAjuan(e){
         riwayat: [{status:'Diusulkan', waktu: new Date().toLocaleString('id-ID'), catatan:'Ajuan awal diterima'}]
     };
     dataProdukHukum.unshift(baru);
-    simpanData(); tampilkanDaftar();
+    simpanData();
+    tampilkanHalaman('dashboard');
     e.target.reset(); document.getElementById('tahun').value = new Date().getFullYear();
     alert('✅ Ajuan berhasil disimpan!');
 }
@@ -243,32 +522,12 @@ function hitungProsen(status){
     return Math.round(((i+1)/TAHAPAN.length)*100);
 }
 
-function tampilkanDaftar(){
-    let wadah = document.getElementById('daftarAjuan');
-    let fJenis = document.getElementById('filterJenis').value;
-    let fStatus = document.getElementById('filterStatus').value;
-    let kataCari = document.getElementById('cari').value.toLowerCase();
-
-    let saring = dataProdukHukum.filter(d=>{
-        if(fJenis && d.jenis!==fJenis) return false;
-        if(fStatus && d.status!==fStatus) return false;
-        if(kataCari && !(d.judul.toLowerCase().includes(kataCari) || d.penanggungJawab.toLowerCase().includes(kataCari))) return false;
-        return true;
-    });
-
-    wadah.innerHTML = '';
-    if(saring.length===0){
-        wadah.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#6C757D; padding:2rem;">Belum ada data produk hukum yang diajukan.</td></tr>`;
-        return;
-    }
-
-    saring.forEach((d, no)=>{
-        let prosen = hitungProsen(d.status);
-        let kelasTahap = prosen===100 ? 'selesai' : 'proses';
-        let baris = document.createElement('tr');
-        baris.innerHTML = `
-            <td>${no+1}</td>
-            <td><strong>${singkatanJenis(d.jenis)}</strong><br><small>${d.nomor || '-'}/${d.tahun}</small></td>
+function buatBarisTabel(d, idxAsli){
+    let prosen = hitungProsen(d.status);
+    return `
+        <tr>
+            <td>${idxAsli+1}</td>
+            <td><strong>${singkatanJenis(d.jenis)}</strong><br><small>${d.nomor||'-'}/${d.tahun}</small></td>
             <td style="max-width:300px;">${d.judul}<br><small style="color:#6C757D;">${d.unitKerja||''}</small></td>
             <td class="penanggung">👤 ${d.penanggungJawab}</td>
             <td>
@@ -284,9 +543,41 @@ function tampilkanDaftar(){
                 <button class="tombol tombol-peringatan" style="padding:0.3rem 0.5rem; font-size:0.8rem;" onclick="lihatRiwayat(${dataProdukHukum.indexOf(d)})">Riwayat</button>
                 <button class="tombol tombol-bahaya" style="padding:0.3rem 0.5rem; font-size:0.8rem;" onclick="hapusData(${dataProdukHukum.indexOf(d)})">Hapus</button>
             </td>
-        `;
-        wadah.appendChild(baris);
-    });
+        </tr>
+    `;
+}
+
+function tampilkanDaftarUmum(){
+    let wadah = document.getElementById('daftarSemua');
+    wadah.innerHTML = dataProdukHukum.length===0
+        ? `<tr><td colspan="6" style="text-align:center; color:#6C757D; padding:2rem;">Belum ada data produk hukum yang diajukan.</td></tr>`
+        : dataProdukHukum.map((d,i)=>buatBarisTabel(d,i)).join('');
+}
+
+function tampilkanDaftarTerfilter(){
+    let wadah = document.getElementById('isiDaftar');
+    let saring = dataProdukHukum.filter(d=>d.status === filterAktif.nilai);
+    wadah.innerHTML = saring.length===0
+        ? `<tr><td colspan="6" style="text-align:center; color:#6C757D; padding:2rem;">Belum ada data pada kategori ini.</td></tr>`
+        : saring.map((d,i)=>buatBarisTabel(d, dataProdukHukum.indexOf(d))).join('');
+}
+
+// === INVENTARISASI: HANYA YANG SUDAH DIUNDANGKAN ===
+function tampilkanInventarisasi(){
+    let wadah = document.getElementById('isiInventarisasi');
+    let saring = dataProdukHukum.filter(d=>d.jenis === filterAktif.nilai && d.status === 'Diundangkan');
+    document.getElementById('jmlInventarisasi').textContent = saring.length;
+    wadah.innerHTML = saring.length===0
+        ? `<tr><td colspan="5" style="text-align:center; color:#6C757D; padding:2rem;">Belum ada produk hukum yang selesai diundangkan.</td></tr>`
+        : saring.map((d,i)=>`
+            <tr>
+                <td>${i+1}</td>
+                <td><strong>${d.nomor||'-'}/${d.tahun}</strong></td>
+                <td>${d.judul}</td>
+                <td>${(d.riwayat && d.riwayat.length>0) ? d.riwayat[d.riwayat.length-1].waktu : '-'}</td>
+                <td>${d.penanggungJawab}</td>
+            </tr>
+        `).join('');
 }
 
 function singkatanJenis(j){
@@ -312,7 +603,9 @@ function simpanStatus(){
     let catatan = document.getElementById('catatanStatus').value.trim() || 'Perubahan status';
     dataProdukHukum[indeksDiedit].status = statusBaru;
     dataProdukHukum[indeksDiedit].riwayat.push({status:statusBaru, waktu: new Date().toLocaleString('id-ID'), catatan:catatan});
-    simpanData(); tampilkanDaftar(); tutupModal();
+    simpanData();
+    tampilkanHalaman('dashboard');
+    tutupModal();
     alert('✅ Status berhasil diperbarui!');
 }
 function lihatRiwayat(idx){
@@ -323,7 +616,8 @@ function lihatRiwayat(idx){
 function hapusData(idx){
     if(confirm('⚠️ Yakin ingin menghapus data ini? Tindakan ini tidak dapat dibatalkan.')){
         dataProdukHukum.splice(idx,1);
-        simpanData(); tampilkanDaftar();
+        simpanData();
+        tampilkanHalaman('dashboard');
     }
 }
 </script>
