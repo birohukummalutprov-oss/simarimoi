@@ -116,11 +116,11 @@
         .tutup {float: right; font-size: 1.4rem; cursor: pointer; color: #888; margin-top: -0.5rem;}
         .tutup:hover {color: #000;}
         .persen {font-weight: 700; color: var(--sekunder); font-size: 0.9rem;}
-        footer {text-align: center; padding: 1.2rem; color: #6C757D; font-size: 0.88rem; margin-top: 2rem;}
         .halaman {display: none;}
         .halaman.aktif {display: block;}
         .info-bantuan {line-height: 1.8; font-size: 0.95rem;}
         .catatan-rekap {background: #E8F4F8; border-left: 4px solid var(--sekunder); padding: 1rem; border-radius: 6px; margin-bottom: 1rem;}
+        .file-input-wrapper label {margin-bottom: 0;}
         @media(max-width:900px) {
             .menu-samping {position: relative; width: 100%; height: auto;}
             .isi-utama {margin-left: 0;}
@@ -231,6 +231,8 @@
                                 <tr>
                                     <th>No</th>
                                     <th>Jenis</th>
+                                    <th>Nomor / Tahun</th>
+                                    <th>Tanggal Diajukan</th>
                                     <th>Judul Produk Hukum</th>
                                     <th>Penanggung Jawab</th>
                                     <th>Status & Progres</th>
@@ -256,16 +258,20 @@
                                     <option value="">— Pilih —</option>
                                     <option value="Peraturan Daerah">Peraturan Daerah (Perda)</option>
                                     <option value="Peraturan Gubernur">Peraturan Gubernur (Pergub)</option>
-                                    <option value="Surat Keputusan">Surat Keputusan</option>
+                                    <option value="Surat Keputusan">Surat Keputusan (SK)</option>
                                 </select>
                             </div>
                             <div class="kolom">
-                                <label>Nomor / Tahun</label>
-                                <input type="text" id="nomor" placeholder="Contoh: 12 / 2026">
+                                <label>Nomor Urut *</label>
+                                <input type="number" id="nomorUrut" placeholder="Contoh: 12" min="1" required>
                             </div>
                             <div class="kolom">
-                                <label>Tahun</label>
-                                <input type="number" id="tahun" value="2026" min="2020" max="2030">
+                                <label>Tahun *</label>
+                                <input type="number" id="tahun" value="2026" min="2020" max="2030" required>
+                            </div>
+                            <div class="kolom">
+                                <label>Tanggal Diajukan *</label>
+                                <input type="date" id="tanggalDiajukan" required>
                             </div>
                         </div>
                         <div class="baris">
@@ -275,13 +281,22 @@
                             </div>
                         </div>
                         <div class="baris">
+                            <div class="kolom" style="flex: 2 1 300px;">
+                                <label>Dokumen Pendukung</label>
+                                <textarea id="dokumenPendukung" rows="3" placeholder="Sebutkan dokumen-dokumen pendukung yang dilampirkan, misal: Naskah rancangan, matriks perbandingan, dll."></textarea>
+                            </div>
+                        </div>
+                        <div class="baris">
+                            <div class="kolom" style="flex: 2 1 300px;">
+                                <label>Lampiran Dokumen</label>
+                                <input type="file" id="lampiranDokumen" multiple>
+                                <small style="color:#6C757D;">Unggah berkas lampiran (PDF, Word, dsb.)</small>
+                            </div>
+                        </div>
+                        <div class="baris">
                             <div class="kolom">
                                 <label>Penanggung Jawab Pembuatan *</label>
                                 <input type="text" id="penanggungJawab" placeholder="Nama pegawai / tim yang bertanggung jawab" required>
-                            </div>
-                            <div class="kolom">
-                                <label>Unit Kerja / Bagian</label>
-                                <input type="text" id="unitKerja" placeholder="Misal: Bagian Perundang-undangan">
                             </div>
                         </div>
                         <div class="baris">
@@ -305,6 +320,8 @@
                                 <tr>
                                     <th>No</th>
                                     <th>Jenis</th>
+                                    <th>Nomor / Tahun</th>
+                                    <th>Tanggal Diajukan</th>
                                     <th>Judul Produk Hukum</th>
                                     <th>Penanggung Jawab</th>
                                     <th>Status & Progres</th>
@@ -331,8 +348,9 @@
                             <thead>
                                 <tr>
                                     <th>No</th>
-                                    <th>Nomor & Tahun</th>
+                                    <th>Nomor / Tahun</th>
                                     <th>Judul Produk Hukum</th>
+                                    <th>Tanggal Diajukan</th>
                                     <th>Tanggal Diundangkan</th>
                                     <th>Penanggung Jawab</th>
                                 </tr>
@@ -405,7 +423,7 @@ const NAMA_PENGGUNA = "admin";
 const KATA_SANDI = "birohukum123";
 
 const KUNCI_PENYIMPANAN = 'sipeda_data_produk_hukum';
-const TAHAPAN = ['Diusulkan','Penyusunan','Pembahasan','Diproses','Ditetapkan','Diundangkan'];
+const TAHAPAN = ['Diusulkan','Penyusunan','Diproses','Ditetapkan','Diundangkan'];
 let dataProdukHukum = [];
 let indeksDiedit = null;
 
@@ -498,14 +516,18 @@ function muatRekapitulasi(){
 
 function simpanAjuan(e){
     e.preventDefault();
+    let noUrut = document.getElementById('nomorUrut').value;
+    let thn = document.getElementById('tahun').value;
     let baru = {
         id: Date.now(),
         jenis: document.getElementById('jenis').value,
-        nomor: document.getElementById('nomor').value.trim(),
-        tahun: document.getElementById('tahun').value,
+        nomorUrut: noUrut,
+        nomor: `${noUrut}/${thn}`,
+        tahun: thn,
+        tanggalDiajukan: document.getElementById('tanggalDiajukan').value,
         judul: document.getElementById('judul').value.trim(),
+        dokumenPendukung: document.getElementById('dokumenPendukung').value.trim(),
         penanggungJawab: document.getElementById('penanggungJawab').value.trim(),
-        unitKerja: document.getElementById('unitKerja').value.trim(),
         uraian: document.getElementById('uraian').value.trim(),
         status: 'Diusulkan',
         riwayat: [{status:'Diusulkan', waktu: new Date().toLocaleString('id-ID'), catatan:'Ajuan awal diterima'}]
@@ -513,7 +535,9 @@ function simpanAjuan(e){
     dataProdukHukum.unshift(baru);
     simpanData();
     tampilkanHalaman('dashboard');
-    e.target.reset(); document.getElementById('tahun').value = new Date().getFullYear();
+    e.target.reset();
+    document.getElementById('tahun').value = new Date().getFullYear();
+    document.getElementById('tanggalDiajukan').value = '';
     alert('✅ Ajuan berhasil disimpan!');
 }
 
@@ -527,8 +551,10 @@ function buatBarisTabel(d, idxAsli){
     return `
         <tr>
             <td>${idxAsli+1}</td>
-            <td><strong>${singkatanJenis(d.jenis)}</strong><br><small>${d.nomor||'-'}/${d.tahun}</small></td>
-            <td style="max-width:300px;">${d.judul}<br><small style="color:#6C757D;">${d.unitKerja||''}</small></td>
+            <td><strong>${singkatanJenis(d.jenis)}</strong></td>
+            <td>${d.nomor}</td>
+            <td>${d.tanggalDiajukan || '-'}</td>
+            <td style="max-width:300px;">${d.judul}</td>
             <td class="penanggung">👤 ${d.penanggungJawab}</td>
             <td>
                 <strong>${d.status}</strong>
@@ -550,7 +576,7 @@ function buatBarisTabel(d, idxAsli){
 function tampilkanDaftarUmum(){
     let wadah = document.getElementById('daftarSemua');
     wadah.innerHTML = dataProdukHukum.length===0
-        ? `<tr><td colspan="6" style="text-align:center; color:#6C757D; padding:2rem;">Belum ada data produk hukum yang diajukan.</td></tr>`
+        ? `<tr><td colspan="8" style="text-align:center; color:#6C757D; padding:2rem;">Belum ada data produk hukum yang diajukan.</td></tr>`
         : dataProdukHukum.map((d,i)=>buatBarisTabel(d,i)).join('');
 }
 
@@ -558,7 +584,7 @@ function tampilkanDaftarTerfilter(){
     let wadah = document.getElementById('isiDaftar');
     let saring = dataProdukHukum.filter(d=>d.status === filterAktif.nilai);
     wadah.innerHTML = saring.length===0
-        ? `<tr><td colspan="6" style="text-align:center; color:#6C757D; padding:2rem;">Belum ada data pada kategori ini.</td></tr>`
+        ? `<tr><td colspan="8" style="text-align:center; color:#6C757D; padding:2rem;">Belum ada data pada kategori ini.</td></tr>`
         : saring.map((d,i)=>buatBarisTabel(d, dataProdukHukum.indexOf(d))).join('');
 }
 
@@ -568,12 +594,13 @@ function tampilkanInventarisasi(){
     let saring = dataProdukHukum.filter(d=>d.jenis === filterAktif.nilai && d.status === 'Diundangkan');
     document.getElementById('jmlInventarisasi').textContent = saring.length;
     wadah.innerHTML = saring.length===0
-        ? `<tr><td colspan="5" style="text-align:center; color:#6C757D; padding:2rem;">Belum ada produk hukum yang selesai diundangkan.</td></tr>`
+        ? `<tr><td colspan="6" style="text-align:center; color:#6C757D; padding:2rem;">Belum ada produk hukum yang selesai diundangkan.</td></tr>`
         : saring.map((d,i)=>`
             <tr>
                 <td>${i+1}</td>
-                <td><strong>${d.nomor||'-'}/${d.tahun}</strong></td>
+                <td><strong>${d.nomor}</strong></td>
                 <td>${d.judul}</td>
+                <td>${d.tanggalDiajukan || '-'}</td>
                 <td>${(d.riwayat && d.riwayat.length>0) ? d.riwayat[d.riwayat.length-1].waktu : '-'}</td>
                 <td>${d.penanggungJawab}</td>
             </tr>
@@ -583,7 +610,7 @@ function tampilkanInventarisasi(){
 function singkatanJenis(j){
     if(j.includes('Daerah')) return 'Perda';
     if(j.includes('Gubernur')) return 'Pergub';
-    return 'Surat Keputusan';
+    return 'SK';
 }
 
 function bukaModal(idx){
