@@ -8,7 +8,8 @@
         :root {
             --utama: #0F4C81;
             --sekunder: #2E8B57;
-            --peringatan: #D4A017;
+            --peringatan: #F39C12;
+            --dikembalikan: #E74C3C;
             --bahaya: #C0392B;
             --terang: #F8F9FA;
             --gelap: #2C3E50;
@@ -80,10 +81,11 @@
         .konten {padding: 1.5rem;}
 
         /* === KARDUK RINGKASAN DI DASHBOARD === */
-        .baris-kartu {display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 2rem;}
+        .baris-kartu {display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; margin-bottom: 2rem;}
         .kartu-ringkas {background: white; border-radius: 10px; padding: 1.2rem; box-shadow: 0 2px 6px rgba(0,0,0,.08); text-align: center;}
         .kartu-ringkas h4 {font-size: 1.8rem; color: var(--utama); margin-bottom: 0.3rem;}
         .kartu-ringkas p {font-size: 0.9rem; color: #6C757D;}
+        .kartu-ringkas.dikembalikan h4 {color: var(--dikembalikan);}
 
         /* === ISI LAINNYA === */
         .kartu {background: white; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,.08); padding: 1.5rem; margin-bottom: 1.5rem;}
@@ -93,6 +95,7 @@
         .tombol-sekunder {background: var(--sekunder); color: white;}
         .tombol-peringatan {background: var(--peringatan); color: white;}
         .tombol-bahaya {background: var(--bahaya); color: white;}
+        .tombol-kembalikan {background: var(--dikembalikan); color: white;}
         .baris {display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;}
         .kolom {flex: 1; min-width: 200px;}
         label {display: block; font-weight: 600; margin-bottom: 0.4rem; font-size: 0.92rem;}
@@ -107,6 +110,7 @@
         .selesai {background: #D4EDDA; color: #155724;}
         .proses {background: #FFF3CD; color: #856404;}
         .belum {background: #E9ECEF; color: #6C757D;}
+        .kembalikan {background: #FADBD8; color: #C0392B;}
         .penanggung {font-weight: 600; color: var(--utama);}
         .progress-latar {height: 8px; background: #E9ECEF; border-radius: 4px; margin-top: 0.3rem;}
         .progress-isi {height: 100%; background: linear-gradient(90deg, var(--utama), var(--sekunder)); border-radius: 4px; transition: width 0.4s ease;}
@@ -120,7 +124,7 @@
         .halaman.aktif {display: block;}
         .info-bantuan {line-height: 1.8; font-size: 0.95rem;}
         .catatan-rekap {background: #E8F4F8; border-left: 4px solid var(--sekunder); padding: 1rem; border-radius: 6px; margin-bottom: 1rem;}
-        .file-input-wrapper label {margin-bottom: 0;}
+        .catatan-kembalikan {background: #FADBD8; border-left: 4px solid var(--dikembalikan); padding: 1rem; border-radius: 6px; margin-bottom: 1rem;}
         @media(max-width:900px) {
             .menu-samping {position: relative; width: 100%; height: auto;}
             .isi-utama {margin-left: 0;}
@@ -168,6 +172,7 @@
                     <li><a href="#" onclick="tampilkanHalaman('daftar','Diproses'); return false;">➤ Diproses</a></li>
                     <li><a href="#" onclick="tampilkanHalaman('daftar','Ditetapkan'); return false;">➤ Ditetapkan</a></li>
                     <li><a href="#" onclick="tampilkanHalaman('daftar','Diundangkan'); return false;">➤ Diundangkan</a></li>
+                    <li><a href="#" onclick="tampilkanHalaman('daftar','Dikembalikan'); return false;" style="color:#FFBABA;">➤ ⚠️ Dikembalikan</a></li>
                 </ul>
             </li>
             <li>
@@ -221,6 +226,10 @@
                     <div class="kartu-ringkas">
                         <h4 id="jmlSelesai">0</h4>
                         <p>Diundangkan</p>
+                    </div>
+                    <div class="kartu-ringkas dikembalikan">
+                        <h4 id="jmlKembalikan">0</h4>
+                        <p>⚠️ Dikembalikan</p>
                     </div>
                 </div>
                 <div class="kartu">
@@ -314,9 +323,13 @@
             <div id="hal-daftar" class="halaman">
                 <div class="kartu">
                     <h2 id="judulDaftar">Daftar Produk Hukum</h2>
+                    <div id="catatanKembalikan" class="catatan-kembalikan sembunyi">
+                        ⚠️ <strong>Produk Hukum Dikembalikan ke OPD Pengusul</strong><br>
+                        Dokumen rancangan dinyatakan <strong>belum lengkap</strong> dan dikembalikan untuk dilengkapi. Lihat kolom "Kekurangan Dokumen" pada setiap berkas.
+                    </div>
                     <div style="overflow-x:auto; margin-top:1rem;">
-                        <table>
-                            <thead>
+                        <table id="tabelDaftar">
+                            <thead id="kepalaTabelBiasa">
                                 <tr>
                                     <th>No</th>
                                     <th>Jenis</th>
@@ -325,6 +338,18 @@
                                     <th>Judul Produk Hukum</th>
                                     <th>Penanggung Jawab</th>
                                     <th>Status & Progres</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <thead id="kepalaTabelKembalikan" class="sembunyi">
+                                <tr>
+                                    <th>No</th>
+                                    <th>Jenis</th>
+                                    <th>Nomor / Tahun</th>
+                                    <th>Tanggal Diajukan</th>
+                                    <th>Judul Produk Hukum</th>
+                                    <th>Kekurangan Dokumen / Alasan Dikembalikan</th>
+                                    <th>Tanggal Dikembalikan</th>
                                     <th>Aksi</th>
                                 </tr>
                             </thead>
@@ -390,19 +415,26 @@
 <div id="modalUbahStatus" class="modal-posisi sembunyi">
     <div class="modal-isi">
         <span class="tutup" onclick="tutupModal()">&times;</span>
-        <h3>Ubah Status Progres Produk Hukum</h3>
+        <h3 id="judulModalStatus">Ubah Status Progres Produk Hukum</h3>
         <p id="modalJudul"></p>
         <div class="baris">
             <div class="kolom">
                 <label>Status Saat Ini</label>
-                <select id="statusBaru">
+                <select id="statusBaru" onchange="cekStatusKembalikan()">
                     <option value="Diusulkan">1. Diusulkan — Ajuan Diterima</option>
                     <option value="Penyusunan">2. Penyusunan — Penyusunan Naskah</option>
                     <option value="Pembahasan">3. Pembahasan — Pembahasan & Penyempurnaan</option>
                     <option value="Diproses">4. Diproses — Dalam Penanganan</option>
                     <option value="Ditetapkan">5. Ditetapkan — Penandatanganan</option>
                     <option value="Diundangkan">6. Diundangkan — Selesai & Dipublikasikan</option>
+                    <option value="Dikembalikan">⚠️ Dikembalikan — Dokumen Belum Lengkap</option>
                 </select>
+            </div>
+        </div>
+        <div id="bagianKekurangan" class="baris sembunyi">
+            <div class="kolom">
+                <label>⚠️ Kekurangan Dokumen / Alasan Dikembalikan *</label>
+                <textarea id="kekuranganDokumen" rows="4" placeholder="Sebutkan secara rinci dokumen yang belum lengkap atau alasan pengembalian, misal:&#10;- Belum melampirkan Naskah Rancangan&#10;- Belum ada Matriks Perbandingan&#10;- Belum ada Surat Pengantar dari OPD"></textarea>
             </div>
         </div>
         <div class="baris">
@@ -423,7 +455,7 @@ const NAMA_PENGGUNA = "admin";
 const KATA_SANDI = "birohukum123";
 
 const KUNCI_PENYIMPANAN = 'sipeda_data_produk_hukum';
-const TAHAPAN = ['Diusulkan','Penyusunan','Diproses','Ditetapkan','Diundangkan'];
+const TAHAPAN = ['Diusulkan','Penyusunan','Pembahasan','Diproses','Ditetapkan','Diundangkan','Dikembalikan'];
 let dataProdukHukum = [];
 let indeksDiedit = null;
 
@@ -432,6 +464,17 @@ window.onload = function(){
     document.getElementById('formLogin').addEventListener('submit', fungsiLogin);
     document.getElementById('formAjuan').addEventListener('submit', simpanAjuan);
 };
+
+// === Tampilkan/sembunyikan kolom kekurangan saat pilih "Dikembalikan" ===
+function cekStatusKembalikan(){
+    let status = document.getElementById('statusBaru').value;
+    let bagianKekurangan = document.getElementById('bagianKekurangan');
+    if(status === 'Dikembalikan'){
+        bagianKekurangan.classList.remove('sembunyi');
+    } else {
+        bagianKekurangan.classList.add('sembunyi');
+    }
+}
 
 // === FUNGSI LOGIN ===
 function fungsiLogin(e){
@@ -479,8 +522,13 @@ function tampilkanHalaman(nama, nilai){
         document.getElementById('hal-ajuan').classList.add('aktif');
     } else if(nama === 'daftar'){
         filterAktif = {jenis:'status', nilai:nilai};
-        document.getElementById('judulHalaman').textContent = '🔍 Identifikasi PHD — '+nilai;
-        document.getElementById('judulDaftar').textContent = 'Daftar Produk Hukum: '+nilai;
+        if(nilai === 'Dikembalikan'){
+            document.getElementById('judulHalaman').textContent = '⚠️ Identifikasi PHD — Dikembalikan';
+            document.getElementById('judulDaftar').textContent = 'Daftar Produk Hukum Dikembalikan ke OPD Pengusul';
+        } else {
+            document.getElementById('judulHalaman').textContent = '🔍 Identifikasi PHD — '+nilai;
+            document.getElementById('judulDaftar').textContent = 'Daftar Produk Hukum: '+nilai;
+        }
         document.getElementById('hal-daftar').classList.add('aktif');
         tampilkanDaftarTerfilter();
     } else if(nama === 'inventarisasi'){
@@ -512,6 +560,7 @@ function muatRekapitulasi(){
     document.getElementById('jmlPembahasan').textContent = dataProdukHukum.filter(d=>d.status==='Pembahasan').length;
     document.getElementById('jmlDitetapkan').textContent = dataProdukHukum.filter(d=>d.status==='Ditetapkan').length;
     document.getElementById('jmlSelesai').textContent = dataProdukHukum.filter(d=>d.status==='Diundangkan').length;
+    document.getElementById('jmlKembalikan').textContent = dataProdukHukum.filter(d=>d.status==='Dikembalikan').length;
 }
 
 function simpanAjuan(e){
@@ -542,11 +591,31 @@ function simpanAjuan(e){
 }
 
 function hitungProsen(status){
-    let i = TAHAPAN.indexOf(status);
-    return Math.round(((i+1)/TAHAPAN.length)*100);
+    if(status === 'Dikembalikan') return 0;
+    let urutan = ['Diusulkan','Penyusunan','Pembahasan','Diproses','Ditetapkan','Diundangkan'];
+    let i = urutan.indexOf(status);
+    return Math.round(((i+1)/urutan.length)*100);
 }
 
 function buatBarisTabel(d, idxAsli){
+    if(d.status === 'Dikembalikan'){
+        return `
+            <tr style="background:#FEF0F0;">
+                <td>${idxAsli+1}</td>
+                <td><strong>${singkatanJenis(d.jenis)}</strong></td>
+                <td>${d.nomor}</td>
+                <td>${d.tanggalDiajukan || '-'}</td>
+                <td style="max-width:300px;">${d.judul}</td>
+                <td style="color:#C0392B; font-weight:500;">⚠️ ${d.kekurangan || '-'}</td>
+                <td>${(d.riwayat && d.riwayat.length>0) ? d.riwayat[d.riwayat.length-1].waktu : '-'}</td>
+                <td>
+                    <button class="tombol tombol-sekunder" style="padding:0.3rem 0.5rem; font-size:0.8rem;" onclick="bukaModal(${dataProdukHukum.indexOf(d)})">Ubah Status</button>
+                    <button class="tombol tombol-peringatan" style="padding:0.3rem 0.5rem; font-size:0.8rem;" onclick="lihatRiwayat(${dataProdukHukum.indexOf(d)})">Riwayat</button>
+                    <button class="tombol tombol-bahaya" style="padding:0.3rem 0.5rem; font-size:0.8rem;" onclick="hapusData(${dataProdukHukum.indexOf(d)})">Hapus</button>
+                </td>
+            </tr>
+        `;
+    }
     let prosen = hitungProsen(d.status);
     return `
         <tr>
@@ -561,7 +630,8 @@ function buatBarisTabel(d, idxAsli){
                 <span class="persen">${prosen}%</span>
                 <div class="progress-latar"><div class="progress-isi" style="width:${prosen}%"></div></div>
                 <div class="tahap">
-                    ${TAHAPAN.map((t,i)=>`<span class="tahap-biji ${TAHAPAN.indexOf(d.status)>=i?'selesai':'belum'}">${i+1}</span>`).join('')}
+                    ${TAHAPAN.filter(t=>t!=='Dikembalikan').map((t,i)=>`<span class="tahap-biji ${d.status===t?'selesai':(d.status!=='Dikembalikan'&&TAHAPAN.indexOf(d.status)>=i)?'selesai':'belum'}">${i+1}</span>`).join('')}
+                    ${d.status==='Dikembalikan'?'<span class="tahap-biji kembalikan">⚠️</span>':''}
                 </div>
             </td>
             <td>
@@ -583,8 +653,24 @@ function tampilkanDaftarUmum(){
 function tampilkanDaftarTerfilter(){
     let wadah = document.getElementById('isiDaftar');
     let saring = dataProdukHukum.filter(d=>d.status === filterAktif.nilai);
+
+    // Sesuaikan tampilan tabel jika "Dikembalikan"
+    let catatan = document.getElementById('catatanKembalikan');
+    let kepalaBiasa = document.getElementById('kepalaTabelBiasa');
+    let kepalaKembalikan = document.getElementById('kepalaTabelKembalikan');
+
+    if(filterAktif.nilai === 'Dikembalikan'){
+        catatan.classList.remove('sembunyi');
+        kepalaBiasa.classList.add('sembunyi');
+        kepalaKembalikan.classList.remove('sembunyi');
+    } else {
+        catatan.classList.add('sembunyi');
+        kepalaBiasa.classList.remove('sembunyi');
+        kepalaKembalikan.classList.add('sembunyi');
+    }
+
     wadah.innerHTML = saring.length===0
-        ? `<tr><td colspan="8" style="text-align:center; color:#6C757D; padding:2rem;">Belum ada data pada kategori ini.</td></tr>`
+        ? `<tr><td colspan="${filterAktif.nilai==='Dikembalikan'?'8':'8'}" style="text-align:center; color:#6C757D; padding:2rem;">Belum ada data pada kategori ini.</td></tr>`
         : saring.map((d,i)=>buatBarisTabel(d, dataProdukHukum.indexOf(d))).join('');
 }
 
@@ -618,6 +704,8 @@ function bukaModal(idx){
     document.getElementById('modalJudul').textContent = dataProdukHukum[idx].judul;
     document.getElementById('statusBaru').value = dataProdukHukum[idx].status;
     document.getElementById('catatanStatus').value = '';
+    document.getElementById('kekuranganDokumen').value = dataProdukHukum[idx].kekurangan || '';
+    cekStatusKembalikan();
     document.getElementById('modalUbahStatus').classList.remove('sembunyi');
 }
 function tutupModal(){
@@ -628,7 +716,19 @@ function simpanStatus(){
     if(indeksDiedit===null) return;
     let statusBaru = document.getElementById('statusBaru').value;
     let catatan = document.getElementById('catatanStatus').value.trim() || 'Perubahan status';
+    let kekurangan = document.getElementById('kekuranganDokumen').value.trim();
+
+    if(statusBaru === 'Dikembalikan' && !kekurangan){
+        alert('⚠️ Silakan cantumkan Kekurangan Dokumen / Alasan Dikembalikan!');
+        return;
+    }
+
     dataProdukHukum[indeksDiedit].status = statusBaru;
+    if(statusBaru === 'Dikembalikan'){
+        dataProdukHukum[indeksDiedit].kekurangan = kekurangan;
+    } else {
+        delete dataProdukHukum[indeksDiedit].kekurangan;
+    }
     dataProdukHukum[indeksDiedit].riwayat.push({status:statusBaru, waktu: new Date().toLocaleString('id-ID'), catatan:catatan});
     simpanData();
     tampilkanHalaman('dashboard');
@@ -638,7 +738,8 @@ function simpanStatus(){
 function lihatRiwayat(idx){
     let d = dataProdukHukum[idx];
     let riwayat = d.riwayat.map(r=>`• ${r.waktu} — ${r.status}\n  Catatan: ${r.catatan}`).join('\n\n');
-    alert(`📜 RIWAYAT PERUBAHAN STATUS:\n${d.judul}\n\n${riwayat}`);
+    let infoKekurangan = d.kekurangan ? `\n\n⚠️ KEKURANGAN DOKUMEN:\n${d.kekurangan}` : '';
+    alert(`📜 RIWAYAT PERUBAHAN STATUS:\n${d.judul}\n\n${riwayat}${infoKekurangan}`);
 }
 function hapusData(idx){
     if(confirm('⚠️ Yakin ingin menghapus data ini? Tindakan ini tidak dapat dibatalkan.')){
