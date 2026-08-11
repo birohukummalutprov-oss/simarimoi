@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SI-PEDA — Sistem Informasi Pembentukan Produk Hukum Daerah</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
     <style>
         :root {
             --utama: #0F4C81;
@@ -15,7 +17,6 @@
             --gelap: #2C3E50;
             --batas: #E0E0E0;
             --samping: #1A2938;
-            --samping-aktif: #0F4C81;
         }
         * {margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif;}
         body {background: #EFF2F5; color: var(--gelap); line-height: 1.6;}
@@ -30,12 +31,12 @@
             padding: 2.5rem; width: 100%; max-width: 420px; text-align: center;
         }
         .kotak-login h1 {color: var(--utama); margin-bottom: 0.5rem; font-size: 2rem; font-weight: 800;}
-        .kotak-login .kepanjangan {color: #6C757D; font-size: 0.9rem; margin-bottom: 1.8rem; line-height: 1.4;}
-        .kotak-login input {
+        .kotak-login .kepanjangan {color: #6C757D; font-size: 0.9rem; margin-bottom: 1.5rem; line-height: 1.4;}
+        .kotak-login input, .kotak-login select {
             width: 100%; padding: 0.85rem; margin-bottom: 1rem;
             border: 1px solid var(--batas); border-radius: 6px; font-size: 1rem;
         }
-        .kotak-login input:focus {outline: none; border-color: var(--utama); box-shadow: 0 0 0 3px rgba(15,76,129,0.1);}
+        .kotak-login input:focus, .kotak-login select:focus {outline: none; border-color: var(--utama); box-shadow: 0 0 0 3px rgba(15,76,129,0.1);}
         .kotak-login button {
             width: 100%; padding: 0.85rem; border: none; border-radius: 6px;
             background: var(--utama); color: white; font-size: 1rem; font-weight: 600;
@@ -48,13 +49,13 @@
         .menu-samping {
             width: 260px; background: var(--samping); color: white; padding: 1.2rem 0;
             position: fixed; height: 100vh; overflow-y: auto;
-            transition: width 0.3s;
         }
         .menu-samping .logo {
             padding: 1rem 1.2rem; border-bottom: 1px solid rgba(255,255,255,.1); margin-bottom: 1rem;
         }
         .menu-samping .logo h2 {font-size: 1.4rem; margin-bottom: 0.2rem;}
         .menu-samping .logo p {font-size: 0.8rem; opacity: 0.7;}
+        .menu-samping .info-pengguna {padding: 0.5rem 1.2rem; font-size: 0.85rem; opacity: 0.8; border-bottom: 1px solid rgba(255,255,255,.1); margin-bottom: 0.5rem;}
         .menu-samping ul {list-style: none;}
         .menu-samping ul li {margin: 0.25rem 0;}
         .menu-samping ul li a {
@@ -71,27 +72,32 @@
         .isi-utama {margin-left: 260px; flex: 1;}
         .baris-atas {
             background: white; padding: 1rem 1.5rem; display: flex; justify-content: space-between;
-            align-items: center; box-shadow: 0 1px 4px rgba(0,0,0,.08);
+            align-items: center; box-shadow: 0 1px 4px rgba(0,0,0,.08); flex-wrap: wrap; gap: 0.5rem;
         }
         .baris-atas h3 {font-size: 1.1rem; color: var(--utama);}
         .tombol-keluar {background: var(--bahaya); color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-weight: 600;}
         .tombol-keluar:hover {background: #A93226;}
         .konten {padding: 1.5rem;}
 
-        .baris-kartu {display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; margin-bottom: 2rem;}
+        .baris-kartu {display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;}
         .kartu-ringkas {background: white; border-radius: 10px; padding: 1.2rem; box-shadow: 0 2px 6px rgba(0,0,0,.08); text-align: center;}
         .kartu-ringkas h4 {font-size: 1.8rem; color: var(--utama); margin-bottom: 0.3rem;}
         .kartu-ringkas p {font-size: 0.9rem; color: #6C757D;}
         .kartu-ringkas.dikembalikan h4 {color: var(--dikembalikan);}
 
+        .baris-alat {display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: space-between; align-items: center; margin-bottom: 1rem;}
+        .kotak-cari {flex: 1; min-width: 220px;}
+        .kotak-cari input {width: 100%; padding: 0.6rem 0.8rem; border: 1px solid var(--batas); border-radius: 6px; font-size: 0.95rem;}
+        .grup-tombol {display: flex; gap: 0.5rem; flex-wrap: wrap;}
+
         .kartu {background: white; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,.08); padding: 1.5rem; margin-bottom: 1.5rem;}
-        .tombol {padding: 0.6rem 1.2rem; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.25s; text-decoration: none; display: inline-block;}
+        .tombol {padding: 0.6rem 1.2rem; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.25s; text-decoration: none; display: inline-block; font-size: 0.9rem;}
         .tombol-utama {background: var(--utama); color: white;}
         .tombol-utama:hover {background: #0C3C68;}
         .tombol-sekunder {background: var(--sekunder); color: white;}
         .tombol-peringatan {background: var(--peringatan); color: white;}
         .tombol-bahaya {background: var(--bahaya); color: white;}
-        .tombol-kembalikan {background: var(--dikembalikan); color: white;}
+        .tombol-kecil {padding: 0.3rem 0.5rem; font-size: 0.8rem;}
         .baris {display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;}
         .kolom {flex: 1; min-width: 200px;}
         label {display: block; font-weight: 600; margin-bottom: 0.4rem; font-size: 0.92rem;}
@@ -99,28 +105,32 @@
         input:focus, select:focus, textarea:focus {outline: none; border-color: var(--utama); box-shadow: 0 0 0 3px rgba(15,76,129,0.1);}
         table {width: 100%; border-collapse: collapse; margin-top: 1rem;}
         th, td {padding: 0.8rem; text-align: left; border-bottom: 1px solid var(--batas); font-size: 0.93rem;}
-        th {background: var(--terang); font-weight: 700; color: var(--utama);}
+        th {background: var(--terang); font-weight: 700; color: var(--utama); cursor: pointer;}
+        th.simbol-urut::after {content: " ↕"; font-size: 0.75rem; opacity: 0.5;}
+        th.urut-asc::after {content: " ↑"; font-size: 0.75rem;}
+        th.urut-desc::after {content: " ↓"; font-size: 0.75rem;}
         tr:hover {background: #F8FBFE;}
-        .tahap {display: flex; gap: 0.3rem; flex-wrap: wrap; margin-top: 0.4rem;}
-        .tahap-biji {padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.78rem; font-weight: 600;}
-        .selesai {background: #D4EDDA; color: #155724;}
-        .proses {background: #FFF3CD; color: #856404;}
-        .belum {background: #E9ECEF; color: #6C757D;}
-        .kembalikan {background: #FADBD8; color: #C0392B;}
-        .penanggung {font-weight: 600; color: var(--utama);}
         .progress-latar {height: 8px; background: #E9ECEF; border-radius: 4px; margin-top: 0.3rem;}
         .progress-isi {height: 100%; background: linear-gradient(90deg, var(--utama), var(--sekunder)); border-radius: 4px; transition: width 0.4s ease;}
         .sembunyi {display: none !important;}
-        .modal-posisi {position: fixed; inset: 0; background: rgba(0,0,0,.5); display: flex; align-items: center; justify-content: center; z-index: 999;}
-        .modal-isi {background: white; border-radius: 10px; padding: 1.8rem; max-width: 750px; width: 94%; max-height: 90vh; overflow-y: auto;}
+        .modal-posisi {position: fixed; inset: 0; background: rgba(0,0,0,.5); display: flex; align-items: center; justify-content: center; z-index: 999; padding: 1rem;}
+        .modal-isi {background: white; border-radius: 10px; padding: 1.8rem; max-width: 650px; width: 100%; max-height: 90vh; overflow-y: auto;}
         .tutup {float: right; font-size: 1.4rem; cursor: pointer; color: #888; margin-top: -0.5rem;}
         .tutup:hover {color: #000;}
         .persen {font-weight: 700; color: var(--sekunder); font-size: 0.9rem;}
         .halaman {display: none;}
         .halaman.aktif {display: block;}
-        .info-bantuan {line-height: 1.8; font-size: 0.95rem;}
         .catatan-rekap {background: #E8F4F8; border-left: 4px solid var(--sekunder); padding: 1rem; border-radius: 6px; margin-bottom: 1rem;}
         .catatan-kembalikan {background: #FADBD8; border-left: 4px solid var(--dikembalikan); padding: 1rem; border-radius: 6px; margin-bottom: 1rem;}
+        .daftar-berkas {margin-top: 0.5rem; padding-left: 1rem;}
+        .daftar-berkas li {margin: 0.25rem 0; font-size: 0.9rem;}
+        .berkas-tautan {color: var(--utama); text-decoration: none; font-weight: 500;}
+        .berkas-tautan:hover {text-decoration: underline;}
+        .peran-lencana {display: inline-block; padding: 0.15rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700; margin-left: 0.5rem;}
+        .peran-admin {background: #D4EDDA; color: #155724;}
+        .peran-opd {background: #FFF3CD; color: #856404;}
+        .peran-baca {background: #E9ECEF; color: #6C757D;}
+        .penanggung {font-weight: 600; color: var(--utama);}
         @media(max-width:900px) {
             .menu-samping {position: relative; width: 100%; height: auto;}
             .isi-utama {margin-left: 0;}
@@ -136,8 +146,20 @@
         <form id="formLogin">
             <input type="text" id="userNama" placeholder="Nama Pengguna" required>
             <input type="password" id="kataSandi" placeholder="Kata Sandi" required>
+            <select id="peranPengguna" required>
+                <option value="">— Pilih Peran / Hak Akses —</option>
+                <option value="admin">👑 Administrator (Akses Penuh)</option>
+                <option value="opd">🏢 Pengguna OPD (Ajukan & Lihat Miliknya)</option>
+                <option value="pembaca">👁️ Pembaca (Lihat Saja)</option>
+            </select>
             <button type="submit">🔐 Masuk ke Sistem</button>
             <div id="pesanSalah" class="pesan-salah">❌ Nama pengguna atau kata sandi salah!</div>
+            <div style="margin-top:1rem; font-size:0.8rem; color:#6C757D; text-align:left;">
+                <strong>Akun yang tersedia:</strong><br>
+                • Admin: <code>admin</code> / <code>birohukum123</code><br>
+                • OPD: <code>opd</code> / <code>opd123</code><br>
+                • Pembaca: <code>baca</code> / <code>baca123</code>
+            </div>
         </form>
     </div>
 </div>
@@ -148,9 +170,13 @@
             <h2>⚔️ SI-PEDA</h2>
             <p>Biro Hukum Provinsi Maluku Utara</p>
         </div>
+        <div class="info-pengguna">
+            Pengguna: <span id="namaPenggunaSaatIni">-</span>
+            <span id="labelPeran" class="peran-lencana"></span>
+        </div>
         <ul>
             <li><a href="#" onclick="tampilkanHalaman('dashboard'); return false;" class="aktif">📊 Dashboard</a></li>
-            <li><a href="#" onclick="tampilkanHalaman('ajuan'); return false;">➕ Ajukan Produk Hukum Baru</a></li>
+            <li id="menuAjukan"><a href="#" onclick="tampilkanHalaman('ajuan'); return false;">➕ Ajukan Produk Hukum Baru</a></li>
             <li>
                 <a href="#">🔍 Identifikasi PHD ▾</a>
                 <ul>
@@ -171,12 +197,7 @@
                     <li><a href="#" onclick="tampilkanHalaman('inventarisasi','Surat Keputusan'); return false;">➤ SK</a></li>
                 </ul>
             </li>
-            <li>
-                <a href="#">❓ Pusat Bantuan ▾</a>
-                <ul>
-                    <li><a href="#" onclick="tampilkanHalaman('kontak'); return false;">➤ Kontak</a></li>
-                </ul>
-            </li>
+            <li><a href="#" onclick="tampilkanHalaman('kontak'); return false;">📞 Kontak / Bantuan</a></li>
         </ul>
     </nav>
 
@@ -186,57 +207,36 @@
             <button class="tombol-keluar" onclick="keluarSistem()">🚪 Keluar</button>
         </div>
         <div class="konten">
-
             <div id="hal-dashboard" class="halaman aktif">
                 <div class="baris-kartu">
-                    <div class="kartu-ringkas">
-                        <h4 id="jmlSemua">0</h4>
-                        <p>Semua Ajuan</p>
-                    </div>
-                    <div class="kartu-ringkas">
-                        <h4 id="jmlDiusulkan">0</h4>
-                        <p>Diusulkan</p>
-                    </div>
-                    <div class="kartu-ringkas">
-                        <h4 id="jmlPenyusunan">0</h4>
-                        <p>Penyusunan</p>
-                    </div>
-                    <div class="kartu-ringkas">
-                        <h4 id="jmlPembahasan">0</h4>
-                        <p>Pembahasan</p>
-                    </div>
-                    <div class="kartu-ringkas">
-                        <h4 id="jmlDitetapkan">0</h4>
-                        <p>Ditetapkan</p>
-                    </div>
-                    <div class="kartu-ringkas">
-                        <h4 id="jmlSelesai">0</h4>
-                        <p>Diundangkan</p>
-                    </div>
-                    <div class="kartu-ringkas dikembalikan">
-                        <h4 id="jmlKembalikan">0</h4>
-                        <p>⚠️ Dikembalikan</p>
-                    </div>
+                    <div class="kartu-ringkas"><h4 id="jmlSemua">0</h4><p>Semua Ajuan</p></div>
+                    <div class="kartu-ringkas"><h4 id="jmlDiusulkan">0</h4><p>Diusulkan</p></div>
+                    <div class="kartu-ringkas"><h4 id="jmlPenyusunan">0</h4><p>Penyusunan</p></div>
+                    <div class="kartu-ringkas"><h4 id="jmlPembahasan">0</h4><p>Pembahasan</p></div>
+                    <div class="kartu-ringkas"><h4 id="jmlDitetapkan">0</h4><p>Ditetapkan</p></div>
+                    <div class="kartu-ringkas"><h4 id="jmlSelesai">0</h4><p>Diundangkan</p></div>
+                    <div class="kartu-ringkas dikembalikan"><h4 id="jmlKembalikan">0</h4><p>⚠️ Dikembalikan</p></div>
                 </div>
                 <div class="kartu">
                     <h3>Daftar Seluruh Produk Hukum Daerah</h3>
-                    <div style="overflow-x:auto; margin-top:1rem;">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>No</th>
-                                    <th>Jenis</th>
-                                    <th>Nomor / Tahun</th>
-                                    <th>Tanggal Diajukan</th>
-                                    <th>Judul Produk Hukum</th>
-                                    <th>OPD Pengusul</th>
-                                    <th>Penanggung Jawab</th>
-                                    <th>Status & Progres</th>
-                                    <th>Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody id="daftarSemua"></tbody>
-                        </table>
+                    <div class="baris-alat">
+                        <div class="kotak-cari"><input type="text" id="cariDashboard" placeholder="🔍 Cari judul, nomor, penanggung jawab..." oninput="terapkanPencarian()"></div>
+                        <div class="grup-tombol">
+                            <button class="tombol tombol-sekunder tombol-kecil" onclick="eksporKeCSV('dashboard')">📤 Excel</button>
+                            <button class="tombol tombol-peringatan tombol-kecil" onclick="eksporKePDF('dashboard')">📄 PDF</button>
+                        </div>
+                    </div>
+                    <div style="overflow-x:auto;">
+                        <table><thead><tr>
+                            <th class="simbol-urut" onclick="urutkanTabel(0)">No</th>
+                            <th class="simbol-urut" onclick="urutkanTabel(1)">Jenis</th>
+                            <th class="simbol-urut" onclick="urutkanTabel(2)">Nomor / Tahun</th>
+                            <th class="simbol-urut" onclick="urutkanTabel(3)">Tanggal</th>
+                            <th class="simbol-urut" onclick="urutkanTabel(4)">Judul Produk Hukum</th>
+                            <th class="simbol-urut" onclick="urutkanTabel(5)">Penanggung Jawab</th>
+                            <th class="simbol-urut" onclick="urutkanTabel(6)">Status & Progres</th>
+                            <th>Aksi</th>
+                        </tr></thead><tbody id="daftarSemua"></tbody></table>
                     </div>
                 </div>
             </div>
@@ -246,8 +246,7 @@
                     <h2>Ajukan Produk Hukum Baru</h2>
                     <form id="formAjuan">
                         <div class="baris">
-                            <div class="kolom">
-                                <label>Jenis Produk Hukum *</label>
+                            <div class="kolom"><label>Jenis Produk Hukum *</label>
                                 <select id="jenis" required>
                                     <option value="">— Pilih —</option>
                                     <option value="Peraturan Daerah">Peraturan Daerah (Perda)</option>
@@ -255,55 +254,29 @@
                                     <option value="Surat Keputusan">Surat Keputusan (SK)</option>
                                 </select>
                             </div>
-                            <div class="kolom">
-                                <label>Nomor Urut *</label>
-                                <input type="number" id="nomorUrut" placeholder="Contoh: 12" min="1" required>
-                            </div>
-                            <div class="kolom">
-                                <label>Tahun *</label>
-                                <input type="number" id="tahun" value="2026" min="2020" max="2030" required>
-                            </div>
-                            <div class="kolom">
-                                <label>Tanggal Diajukan *</label>
-                                <input type="date" id="tanggalDiajukan" required>
+                            <div class="kolom"><label>Nomor Urut *</label><input type="number" id="nomorUrut" placeholder="Contoh: 12" min="1" required></div>
+                            <div class="kolom"><label>Tahun *</label><input type="number" id="tahun" value="2026" min="2020" max="2030" required></div>
+                            <div class="kolom"><label>Tanggal Diajukan *</label><input type="date" id="tanggalDiajukan" required></div>
+                        </div>
+                        <div class="baris">
+                            <div class="kolom" style="flex:2 1 300px;"><label>Judul / Rancangan Produk Hukum *</label><input type="text" id="judul" placeholder="Judul lengkap rancangan produk hukum" required></div>
+                        </div>
+                        <div class="baris">
+                            <div class="kolom" style="flex:2 1 300px;"><label>Dokumen Pendukung</label><textarea id="dokumenPendukung" rows="2" placeholder="Sebutkan dokumen pendukung"></textarea></div>
+                        </div>
+                        <div class="baris">
+                            <div class="kolom" style="flex:2 1 300px;">
+                                <label>📁 Unggah Berkas Dokumen</label>
+                                <input type="file" id="lampiranDokumen" multiple accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+                                <small style="color:#6C757D;">Maksimal 5MB per berkas. Format: PDF, Word, Gambar</small>
+                                <ul id="daftarBerkasAjuan" class="daftar-berkas"></ul>
                             </div>
                         </div>
                         <div class="baris">
-                            <div class="kolom" style="flex: 2 1 300px;">
-                                <label>Judul / Rancangan Produk Hukum *</label>
-                                <input type="text" id="judul" placeholder="Judul lengkap rancangan produk hukum" required>
-                            </div>
+                            <div class="kolom"><label>Penanggung Jawab Pembuatan *</label><input type="text" id="penanggungJawab" placeholder="Nama pegawai / tim" required></div>
                         </div>
                         <div class="baris">
-                            <div class="kolom" style="flex: 2 1 300px;">
-                                <label>OPD Pengusul *</label>
-                                <input type="text" id="opdPengusul" placeholder="Nama OPD / Satuan Kerja yang mengusulkan" required>
-                            </div>
-                        </div>
-                        <div class="baris">
-                            <div class="kolom" style="flex: 2 1 300px;">
-                                <label>Dokumen Pendukung</label>
-                                <textarea id="dokumenPendukung" rows="3" placeholder="Sebutkan dokumen-dokumen pendukung yang dilampirkan"></textarea>
-                            </div>
-                        </div>
-                        <div class="baris">
-                            <div class="kolom" style="flex: 2 1 300px;">
-                                <label>Lampiran Dokumen</label>
-                                <input type="file" id="lampiranDokumen" multiple>
-                                <small style="color:#6C757D;">Unggah berkas lampiran (PDF, Word, dsb.)</small>
-                            </div>
-                        </div>
-                        <div class="baris">
-                            <div class="kolom">
-                                <label>Penanggung Jawab Pembuatan *</label>
-                                <input type="text" id="penanggungJawab" placeholder="Nama pegawai / tim yang bertanggung jawab" required>
-                            </div>
-                        </div>
-                        <div class="baris">
-                            <div class="kolom" style="flex: 2 1 300px;">
-                                <label>Uraian / Keterangan Singkat</label>
-                                <textarea id="uraian" rows="3" placeholder="Latar belakang atau maksud rancangan"></textarea>
-                            </div>
+                            <div class="kolom" style="flex:2 1 300px;"><label>Uraian / Keterangan Singkat</label><textarea id="uraian" rows="3" placeholder="Latar belakang atau maksud rancangan"></textarea></div>
                         </div>
                         <button type="submit" class="tombol tombol-utama">✅ Simpan Ajuan</button>
                     </form>
@@ -317,34 +290,29 @@
                         ⚠️ <strong>Produk Hukum Dikembalikan ke OPD Pengusul</strong><br>
                         Dokumen rancangan dinyatakan <strong>belum lengkap</strong> dan dikembalikan untuk dilengkapi.
                     </div>
-                    <div style="overflow-x:auto; margin-top:1rem;">
-                        <table id="tabelDaftar">
-                            <thead id="kepalaTabelBiasa">
-                                <tr>
-                                    <th>No</th>
-                                    <th>Jenis</th>
-                                    <th>Nomor / Tahun</th>
-                                    <th>Tanggal Diajukan</th>
-                                    <th>Judul Produk Hukum</th>
-                                    <th>OPD Pengusul</th>
-                                    <th>Penanggung Jawab</th>
-                                    <th>Status & Progres</th>
-                                    <th>Aksi</th>
-                                </tr>
-                            </thead>
-                            <thead id="kepalaTabelKembalikan" class="sembunyi">
-                                <tr>
-                                    <th>No</th>
-                                    <th>Jenis</th>
-                                    <th>Nomor / Tahun</th>
-                                    <th>Tanggal Diajukan</th>
-                                    <th>Judul Produk Hukum</th>
-                                    <th>OPD Pengusul</th>
-                                    <th>Kekurangan Dokumen / Alasan Dikembalikan</th>
-                                    <th>Tanggal Dikembalikan</th>
-                                    <th>Aksi</th>
-                                </tr>
-                            </thead>
+                    <div class="baris-alat">
+                        <div class="kotak-cari"><input type="text" id="cariDaftar" placeholder="🔍 Cari..." oninput="terapkanPencarian()"></div>
+                        <div class="grup-tombol">
+                            <button class="tombol tombol-sekunder tombol-kecil" onclick="eksporKeCSV('daftar')">📤 Excel</button>
+                            <button class="tombol tombol-peringatan tombol-kecil" onclick="eksporKePDF('daftar')">📄 PDF</button>
+                        </div>
+                    </div>
+                    <div style="overflow-x:auto;">
+                        <table>
+                            <thead id="kepalaTabelBiasa"><tr>
+                                <th class="simbol-urut" onclick="urutkanTabel(0)">No</th>
+                                <th class="simbol-urut" onclick="urutkanTabel(1)">Jenis</th>
+                                <th class="simbol-urut" onclick="urutkanTabel(2)">Nomor / Tahun</th>
+                                <th class="simbol-urut" onclick="urutkanTabel(3)">Tanggal</th>
+                                <th class="simbol-urut" onclick="urutkanTabel(4)">Judul</th>
+                                <th class="simbol-urut" onclick="urutkanTabel(5)">Penanggung Jawab</th>
+                                <th class="simbol-urut" onclick="urutkanTabel(6)">Status</th>
+                                <th>Aksi</th>
+                            </tr></thead>
+                            <thead id="kepalaTabelKembalikan" class="sembunyi"><tr>
+                                <th>No</th><th>Jenis</th><th>Nomor / Tahun</th><th>Tanggal Diajukan</th>
+                                <th>Judul Produk Hukum</th><th>Kekurangan Dokumen</th><th>Tanggal Dikembalikan</th><th>Aksi</th>
+                            </tr></thead>
                             <tbody id="isiDaftar"></tbody>
                         </table>
                     </div>
@@ -355,24 +323,25 @@
                 <div class="kartu">
                     <h2 id="judulInventarisasi">Inventarisasi Produk Hukum Daerah</h2>
                     <div class="catatan-rekap">
-                        <strong>📌 Rekapitulasi:</strong> Menampilkan daftar produk hukum yang telah <strong>selesai diundangkan</strong> dan resmi berlaku.
+                        <strong>📌 Rekapitulasi:</strong> Menampilkan produk hukum yang telah <strong>diundangkan</strong> dan berlaku resmi.
                         <br>Jumlah: <strong id="jmlInventarisasi">0</strong> produk hukum.
                     </div>
-                    <div style="overflow-x:auto; margin-top:1rem;">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>No</th>
-                                    <th>Nomor / Tahun</th>
-                                    <th>Judul Produk Hukum</th>
-                                    <th>OPD Pengusul</th>
-                                    <th>Tanggal Diajukan</th>
-                                    <th>Tanggal Diundangkan</th>
-                                    <th>Penanggung Jawab</th>
-                                </tr>
-                            </thead>
-                            <tbody id="isiInventarisasi"></tbody>
-                        </table>
+                    <div class="baris-alat">
+                        <div class="kotak-cari"><input type="text" id="cariInventarisasi" placeholder="🔍 Cari..." oninput="terapkanPencarian()"></div>
+                        <div class="grup-tombol">
+                            <button class="tombol tombol-sekunder tombol-kecil" onclick="eksporKeCSV('inventarisasi')">📤 Excel</button>
+                            <button class="tombol tombol-peringatan tombol-kecil" onclick="eksporKePDF('inventarisasi')">📄 PDF</button>
+                        </div>
+                    </div>
+                    <div style="overflow-x:auto;">
+                        <table><thead><tr>
+                            <th class="simbol-urut" onclick="urutkanTabel(0)">No</th>
+                            <th class="simbol-urut" onclick="urutkanTabel(1)">Nomor / Tahun</th>
+                            <th class="simbol-urut" onclick="urutkanTabel(2)">Judul Produk Hukum</th>
+                            <th class="simbol-urut" onclick="urutkanTabel(3)">Tanggal Diajukan</th>
+                            <th class="simbol-urut" onclick="urutkanTabel(4)">Tanggal Diundangkan</th>
+                            <th class="simbol-urut" onclick="urutkanTabel(5)">Penanggung Jawab</th>
+                        </tr></thead><tbody id="isiInventarisasi"></tbody></table>
                     </div>
                 </div>
             </div>
@@ -380,18 +349,17 @@
             <div id="hal-kontak" class="halaman">
                 <div class="kartu">
                     <h2>📞 Pusat Bantuan — Kontak</h2>
-                    <div class="info-bantuan" style="margin-top:1.5rem;">
+                    <div style="margin-top:1.5rem; line-height:1.8;">
                         <p><strong>SI-PEDA</strong> — Sistem Informasi Pembentukan Produk Hukum Daerah</p>
-                        <p>Biro Hukum Provinsi Maluku Utara</p>
-                        <br>
+                        <p>Biro Hukum Provinsi Maluku Utara</p><br>
                         <p>📍 <strong>Alamat:</strong> Jl. Raya Sofifi, Kota Sofifi, Provinsi Maluku Utara</p>
                         <p>📞 <strong>Telepon:</strong> (0921) XXXXXX</p>
                         <p>📧 <strong>Email:</strong> birohukum@malukuutara.go.id</p>
-                        <p>🕐 <strong>Jam Kerja:</strong> Senin – Jumat, 07.30 – 16.00 WIT</p>
+                        <p>🕐 <strong>Jam Kerja:</strong> Senin – Jumat, 07.30 – 16.00 WIT</p><br>
+                        <p style="color:#6C757D; font-style:italic;">Untuk kendala teknis atau pertanyaan mengenai penggunaan sistem, silakan hubungi Biro Hukum pada jam kerja.</p>
                     </div>
                 </div>
             </div>
-
         </div>
     </main>
 </div>
@@ -399,34 +367,32 @@
 <div id="modalUbahStatus" class="modal-posisi sembunyi">
     <div class="modal-isi">
         <span class="tutup" onclick="tutupModal()">&times;</span>
-        <h3 id="judulModalStatus">Ubah Status Progres Produk Hukum</h3>
+        <h3>Ubah Status Progres Produk Hukum</h3>
         <p id="modalJudul"></p>
-        <div class="baris">
-            <div class="kolom">
-                <label>Status Saat Ini</label>
-                <select id="statusBaru" onchange="cekStatusKembalikan()">
-                    <option value="Diusulkan">1. Diusulkan — Ajuan Diterima</option>
-                    <option value="Penyusunan">2. Penyusunan — Penyusunan Naskah</option>
-                    <option value="Pembahasan">3. Pembahasan — Pembahasan & Penyempurnaan</option>
-                    <option value="Diproses">4. Diproses — Dalam Penanganan</option>
-                    <option value="Ditetapkan">5. Ditetapkan — Penandatanganan</option>
-                    <option value="Diundangkan">6. Diundangkan — Selesai & Dipublikasikan</option>
-                    <option value="Dikembalikan">⚠️ Dikembalikan — Dokumen Belum Lengkap</option>
-                </select>
-            </div>
-        </div>
-        <div id="bagianKekurangan" class="baris sembunyi">
-            <div class="kolom">
-                <label>⚠️ Kekurangan Dokumen / Alasan Dikembalikan *</label>
-                <textarea id="kekuranganDokumen" rows="4" placeholder="Sebutkan secara rinci dokumen yang belum lengkap"></textarea>
-            </div>
-        </div>
-        <div class="baris">
-            <div class="kolom">
-                <label>Keterangan / Catatan Perubahan Status</label>
-                <textarea id="catatanStatus" rows="3" placeholder="Catatan perubahan status..."></textarea>
-            </div>
-        </div>
+        <div class="baris"><div class="kolom">
+            <label>Status Baru</label>
+            <select id="statusBaru" onchange="cekStatusKembalikan()">
+                <option value="Diusulkan">1. Diusulkan — Ajuan Diterima</option>
+                <option value="Penyusunan">2. Penyusunan — Penyusunan Naskah</option>
+                <option value="Pembahasan">3. Pembahasan — Pembahasan & Penyempurnaan</option>
+                <option value="Diproses">4. Diproses — Dalam Penanganan</option>
+                <option value="Ditetapkan">5. Ditetapkan — Penandatanganan</option>
+                <option value="Diundangkan">6. Diundangkan — Selesai & Dipublikasikan</option>
+                <option value="Dikembalikan">⚠️ Dikembalikan — Dokumen Belum Lengkap</option>
+            </select>
+        </div></div>
+        <div id="bagianKekurangan" class="baris sembunyi"><div class="kolom">
+            <label>⚠️ Kekurangan Dokumen / Alasan Dikembalikan *</label>
+            <textarea id="kekuranganDokumen" rows="3" placeholder="Sebutkan dokumen yang belum lengkap..."></textarea>
+        </div></div>
+        <div class="baris"><div class="kolom">
+            <label>Keterangan / Catatan Perubahan Status</label>
+            <textarea id="catatanStatus" rows="2" placeholder="Catatan..."></textarea>
+        </div></div>
+        <div class="baris"><div class="kolom">
+            <label>📁 Berkas Terlampir</label>
+            <ul id="daftarBerkasModal" class="daftar-berkas"></ul>
+        </div></div>
         <br>
         <button class="tombol tombol-utama" onclick="simpanStatus()">✅ Simpan Perubahan Status</button>
         <button class="tombol tombol-peringatan" onclick="tutupModal()">Batal</button>
@@ -434,93 +400,79 @@
 </div>
 
 <script>
-const NAMA_PENGGUNA = "admin";
-const KATA_SANDI = "birohukum123";
+const DAFTAR_AKUN = {
+    "admin": {sandi:"birohukum123", peran:"admin", nama:"Administrator"},
+    "opd": {sandi:"opd123", peran:"opd", nama:"Pengguna OPD"},
+    "baca": {sandi:"baca123", peran:"pembaca", nama:"Pembaca"}
+};
 const KUNCI_PENYIMPANAN = 'sipeda_data_produk_hukum';
 const TAHAPAN = ['Diusulkan','Penyusunan','Pembahasan','Diproses','Ditetapkan','Diundangkan','Dikembalikan'];
+
 let dataProdukHukum = [];
 let indeksDiedit = null;
+let penggunaSaatIni = null;
+let berkasAjuanSementara = [];
+let filterAktif = null;
+let arahUrut = [0, 0];
+let kataKunciGlobal = '';
 
 window.onload = function(){
-    if(localStorage.getItem('sipeda_login') === 'ok') tampilkanHalamanUtama();
+    if(localStorage.getItem('sipeda_login') === 'ok') muatSesi();
     document.getElementById('formLogin').addEventListener('submit', fungsiLogin);
     document.getElementById('formAjuan').addEventListener('submit', simpanAjuan);
+    document.getElementById('lampiranDokumen').addEventListener('change', tanganiUnggahBerkas);
 };
 
-function cekStatusKembalikan(){
-    let status = document.getElementById('statusBaru').value;
-    let bagianKekurangan = document.getElementById('bagianKekurangan');
-    if(status === 'Dikembalikan'){
-        bagianKekurangan.classList.remove('sembunyi');
-    } else {
-        bagianKekurangan.classList.add('sembunyi');
-    }
-}
+function dapatkanPeranSaatIni(){ return penggunaSaatIni?.peran || 'pembaca'; }
+function adalahAdmin(){ return dapatkanPeranSaatIni() === 'admin'; }
+function adalahOPD(){ return dapatkanPeranSaatIni() === 'opd'; }
+function bisaUbahStatus(){ return adalahAdmin(); }
+function bisaHapus(){ return adalahAdmin(); }
+function bisaAjukan(){ return adalahAdmin() || adalahOPD(); }
 
 function fungsiLogin(e){
     e.preventDefault();
-    let user = document.getElementById('userNama').value.trim();
+    let user = document.getElementById('userNama').value.trim().toLowerCase();
     let sandi = document.getElementById('kataSandi').value;
-    if(user === NAMA_PENGGUNA && sandi === KATA_SANDI){
-        localStorage.setItem('sipeda_login', 'ok');
-        tampilkanHalamanUtama();
-    } else {
+    let peranPilih = document.getElementById('peranPengguna').value;
+    if(!DAFTAR_AKUN[user] || DAFTAR_AKUN[user].sandi !== sandi || DAFTAR_AKUN[user].peran !== peranPilih){
         document.getElementById('pesanSalah').style.display = 'block';
         document.getElementById('kataSandi').value = '';
+        return;
     }
+    penggunaSaatIni = {nama:user, ...DAFTAR_AKUN[user]};
+    localStorage.setItem('sipeda_login', 'ok');
+    localStorage.setItem('sipeda_pengguna', JSON.stringify(penggunaSaatIni));
+    tampilkanHalamanUtama();
+}
+
+function muatSesi(){
+    let simpan = localStorage.getItem('sipeda_pengguna');
+    if(simpan) penggunaSaatIni = JSON.parse(simpan);
 }
 
 function tampilkanHalamanUtama(){
     document.getElementById('halamanLogin').classList.add('sembunyi');
     document.getElementById('halamanUtama').classList.remove('sembunyi');
+    document.getElementById('namaPenggunaSaatIni').textContent = penggunaSaatIni.nama;
+    let label = document.getElementById('labelPeran');
+    label.textContent = penggunaSaatIni.peran;
+    label.className = 'peran-lencana peran-'+penggunaSaatIni.peran;
+    document.getElementById('menuAjukan').style.display = bisaAjukan() ? 'block' : 'none';
     muatData();
     tampilkanHalaman('dashboard');
 }
 
 function keluarSistem(){
     localStorage.removeItem('sipeda_login');
+    localStorage.removeItem('sipeda_pengguna');
+    penggunaSaatIni = null;
     document.getElementById('halamanUtama').classList.add('sembunyi');
     document.getElementById('halamanLogin').classList.remove('sembunyi');
     document.getElementById('userNama').value = '';
     document.getElementById('kataSandi').value = '';
+    document.getElementById('peranPengguna').value = '';
     document.getElementById('pesanSalah').style.display = 'none';
-}
-
-let filterAktif = null;
-function tampilkanHalaman(nama, nilai){
-    filterAktif = null;
-    document.querySelectorAll('.halaman').forEach(h=>h.classList.remove('aktif'));
-    document.querySelectorAll('.menu-samping a').forEach(a=>a.classList.remove('aktif'));
-
-    if(nama === 'dashboard'){
-        document.getElementById('judulHalaman').textContent = '📊 Dashboard — Rekapitulasi Produk Hukum Daerah';
-        document.getElementById('hal-dashboard').classList.add('aktif');
-        muatRekapitulasi(); tampilkanDaftarUmum();
-    } else if(nama === 'ajuan'){
-        document.getElementById('judulHalaman').textContent = '➕ Ajukan Produk Hukum Baru';
-        document.getElementById('hal-ajuan').classList.add('aktif');
-    } else if(nama === 'daftar'){
-        filterAktif = {jenis:'status', nilai:nilai};
-        if(nilai === 'Dikembalikan'){
-            document.getElementById('judulHalaman').textContent = '⚠️ Identifikasi PHD — Dikembalikan';
-            document.getElementById('judulDaftar').textContent = 'Daftar Produk Hukum Dikembalikan ke OPD Pengusul';
-        } else {
-            document.getElementById('judulHalaman').textContent = '🔍 Identifikasi PHD — '+nilai;
-            document.getElementById('judulDaftar').textContent = 'Daftar Produk Hukum: '+nilai;
-        }
-        document.getElementById('hal-daftar').classList.add('aktif');
-        tampilkanDaftarTerfilter();
-    } else if(nama === 'inventarisasi'){
-        filterAktif = {jenis:'inventarisasi', nilai:nilai};
-        let namaJenis = nilai.includes('Daerah') ? 'Perda' : nilai.includes('Gubernur') ? 'Pergub' : 'Surat Keputusan';
-        document.getElementById('judulHalaman').textContent = '📑 Inventarisasi PHD — '+namaJenis;
-        document.getElementById('judulInventarisasi').textContent = 'Daftar Produk Hukum Yang Sudah Diundangkan: '+namaJenis;
-        document.getElementById('hal-inventarisasi').classList.add('aktif');
-        tampilkanInventarisasi();
-    } else if(nama === 'kontak'){
-        document.getElementById('judulHalaman').textContent = '❓ Pusat Bantuan — Kontak';
-        document.getElementById('hal-kontak').classList.add('aktif');
-    }
 }
 
 function muatData(){
@@ -531,7 +483,159 @@ function simpanData(){
     localStorage.setItem(KUNCI_PENYIMPANAN, JSON.stringify(dataProdukHukum));
 }
 
-function muatRekapitulasi(){
+function terapkanPencarian(){
+    let halAktif = document.querySelector('.halaman.aktif');
+    if(halAktif.id === 'hal-dashboard') kataKunciGlobal = document.getElementById('cariDashboard').value.toLowerCase();
+    else if(halAktif.id === 'hal-daftar') kataKunciGlobal = document.getElementById('cariDaftar').value.toLowerCase();
+    else if(halAktif.id === 'hal-inventarisasi') kataKunciGlobal = document.getElementById('cariInventarisasi').value.toLowerCase();
+    tampilkanHalaman('dashboard');
+    if(halAktif.id === 'hal-daftar') tampilkanDaftarTerfilter();
+    if(halAktif.id === 'hal-inventarisasi') tampilkanInventarisasi();
+}
+
+function cocokkanCari(d){
+    if(!kataKunciGlobal) return true;
+    return d.judul.toLowerCase().includes(kataKunciGlobal) ||
+           d.nomor.includes(kataKunciGlobal) ||
+           d.penanggungJawab.toLowerCase().includes(kataKunciGlobal) ||
+           d.status.toLowerCase().includes(kataKunciGlobal);
+}
+
+function urutkanTabel(kolomIndeks){
+    arahUrut[0] = kolomIndeks;
+    arahUrut[1] = arahUrut[1] === 1 ? -1 : 1;
+    tampilkanHalaman('dashboard');
+    if(filterAktif) tampilkanDaftarTerfilter();
+}
+
+function terapkanUrutan(arr, ambilNilai){
+    return arr.sort((a,b)=>{
+        let va = ambilNilai(a), vb = ambilNilai(b);
+        if(typeof va === 'string') return va.localeCompare(vb) * arahUrut[1];
+        return (va > vb ? 1 : -1) * arahUrut[1];
+    });
+}
+
+function tanganiUnggahBerkas(e){
+    berkasAjuanSementara = [];
+    let daftarEl = document.getElementById('daftarBerkasAjuan');
+    daftarEl.innerHTML = '';
+    let berkas = e.target.files;
+    for(let f of berkas){
+        if(f.size > 5*1024*1024){ alert('Berkas '+f.name+' melebihi 5MB!'); continue; }
+        let pembaca = new FileReader();
+        pembaca.onload = function(ev){
+            let info = {nama:f.name, tipe:f.type, ukuran:f.size, data:ev.target.result};
+            berkasAjuanSementara.push(info);
+            let li = document.createElement('li');
+            li.textContent = '📄 '+f.name+' ('+(f.size/1024).toFixed(1)+' KB)';
+            daftarEl.appendChild(li);
+        };
+        pembaca.readAsDataURL(f);
+    }
+}
+
+function tampilkanBerkasDiModal(berkas){
+    let wadah = document.getElementById('daftarBerkasModal');
+    wadah.innerHTML = '';
+    if(!berkas || berkas.length===0){ wadah.innerHTML = '<li style="color:#888;">Tidak ada berkas terlampir</li>'; return; }
+    berkas.forEach(b=>{
+        let li = document.createElement('li');
+        let a = document.createElement('a');
+        a.href = b.data; a.download = b.nama; a.className = 'berkas-tautan';
+        a.textContent = '📄 '+b.nama;
+        li.appendChild(a); wadah.appendChild(li);
+    });
+}
+
+function ubahKeTeksTabel(daftar, jenis){
+    let baris = [];
+    if(jenis==='dashboard' || jenis==='daftar'){
+        baris.push(['No','Jenis','Nomor/Tahun','Tanggal Diajukan','Judul','Penanggung Jawab','Status','Progres(%)']);
+        daftar.forEach((d,i)=>baris.push([i+1, singkatanJenis(d.jenis), d.nomor, d.tanggalDiajukan, d.judul, d.penanggungJawab, d.status, hitungProsen(d.status)]));
+    } else if(jenis==='inventarisasi'){
+        baris.push(['No','Nomor/Tahun','Judul','Tanggal Diajukan','Tanggal Diundangkan','Penanggung Jawab']);
+        daftar.forEach((d,i)=>baris.push([i+1, d.nomor, d.judul, d.tanggalDiajukan, d.riwayat?.at(-1)?.waktu||'-', d.penanggungJawab]));
+    }
+    return baris;
+}
+
+function eksporKeCSV(jenis){
+    let daftar = ambilDataTerfilter();
+    let baris = ubahKeTeksTabel(daftar, jenis);
+    let csv = baris.map(r=>r.map(k=>'"'+(k+'').replace(/"/g,'""')+'"').join(',')).join('\n');
+    let blob = new Blob(['\ufeff'+csv], {type:'text/csv;charset=utf-8'});
+    let tautan = document.createElement('a');
+    tautan.href = URL.createObjectURL(blob);
+    tautan.download = 'SI-PEDA-Laporan-'+jenis+'-'+new Date().toLocaleDateString('id-ID').replace(/\//g,'-')+'.csv';
+    tautan.click();
+}
+
+async function eksporKePDF(jenis){
+    const {jsPDF} = window.jspdf;
+    let doc = new jsPDF();
+    let daftar = ambilDataTerfilter();
+    let baris = ubahKeTeksTabel(daftar, jenis);
+    doc.setFontSize(14);
+    doc.text('Laporan SI-PEDA — '+jenis,14,18);
+    doc.setFontSize(10);
+    doc.text('Dicetak: '+new Date().toLocaleString('id-ID'),14,26);
+    doc.autoTable({head:[baris[0]], body:baris.slice(1), startY:32, styles:{fontSize:8}, headStyles:{fillColor:[15,76,129]}});
+    doc.save('SI-PEDA-Laporan-'+jenis+'-'+new Date().toLocaleDateString('id-ID').replace(/\//g,'-')+'.pdf');
+}
+
+function ambilDataTerfilter(){
+    let d = [...dataProdukHukum];
+    if(filterAktif?.jenis==='status') d = d.filter(x=>x.status===filterAktif.nilai);
+    if(filterAktif?.jenis==='inventarisasi') d = d.filter(x=>x.jenis===filterAktif.nilai && x.status==='Diundangkan');
+    d = d.filter(cocokkanCari);
+    if(arahUrut[0]>0) d = terapkanUrutan(d, [
+        (x)=>'', (x)=>singkatanJenis(x.jenis), (x)=>x.nomor,
+        (x)=>x.tanggalDiajukan, (x)=>x.judul, (x)=>x.penanggungJawab, (x)=>x.status
+    ][arahUrut[0]]);
+    return d;
+}
+
+function hitungProsen(status){
+    if(status === 'Dikembalikan') return 0;
+    let urutan = ['Diusulkan','Penyusunan','Pembahasan','Diproses','Ditetapkan','Diundangkan'];
+    let i = urutan.indexOf(status);
+    return Math.round(((i + 1) / urutan.length) * 100);
+}
+
+function singkatanJenis(teks){
+    if(!teks) return '-';
+    if(teks.includes('Peraturan Daerah')) return 'Perda';
+    if(teks.includes('Peraturan Gubernur')) return 'Pergub';
+    if(teks.includes('Surat Keputusan')) return 'SK';
+    return teks;
+}
+
+function tampilkanHalaman(nama, nilaiFilter = null){
+    document.querySelectorAll('.halaman').forEach(h=>h.classList.remove('aktif'));
+    document.getElementById('hal-'+nama).classList.add('aktif');
+    document.querySelectorAll('.menu-samping a').forEach(a=>a.classList.remove('aktif'));
+    filterAktif = nilaiFilter ? {jenis: nama==='inventarisasi'?'inventarisasi':'status', nilai: nilaiFilter} : null;
+    kataKunciGlobal = '';
+    arahUrut = [0,0];
+    let judulUtama = '📊 Dashboard — Rekapitulasi Produk Hukum Daerah';
+    if(nama==='ajuan') judulUtama = '➕ Ajukan Produk Hukum Baru';
+    if(nama==='daftar'){
+        judulUtama = '📋 Daftar Produk Hukum — ' + (nilaiFilter||'Semua');
+        document.getElementById('judulDaftar').textContent = judulUtama;
+        tampilkanDaftarTerfilter();
+    }
+    if(nama==='inventarisasi'){
+        judulUtama = '📑 Inventarisasi — ' + (nilaiFilter||'Semua');
+        document.getElementById('judulInventarisasi').textContent = judulUtama;
+        tampilkanInventarisasi();
+    }
+    if(nama==='kontak') judulUtama = '📞 Kontak / Bantuan';
+    document.getElementById('judulHalaman').textContent = judulUtama;
+    if(nama==='dashboard') tampilkanDashboard();
+}
+
+function tampilkanDashboard(){
     document.getElementById('jmlSemua').textContent = dataProdukHukum.length;
     document.getElementById('jmlDiusulkan').textContent = dataProdukHukum.filter(d=>d.status==='Diusulkan').length;
     document.getElementById('jmlPenyusunan').textContent = dataProdukHukum.filter(d=>d.status==='Penyusunan').length;
@@ -539,188 +643,183 @@ function muatRekapitulasi(){
     document.getElementById('jmlDitetapkan').textContent = dataProdukHukum.filter(d=>d.status==='Ditetapkan').length;
     document.getElementById('jmlSelesai').textContent = dataProdukHukum.filter(d=>d.status==='Diundangkan').length;
     document.getElementById('jmlKembalikan').textContent = dataProdukHukum.filter(d=>d.status==='Dikembalikan').length;
+    let daftar = ambilDataTerfilter();
+    let tbody = document.getElementById('daftarSemua');
+    tbody.innerHTML = '';
+    daftar.forEach((d, i)=>{
+        let tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${i+1}</td>
+            <td>${singkatanJenis(d.jenis)}</td>
+            <td>${d.nomor}</td>
+            <td>${d.tanggalDiajukan}</td>
+            <td>${d.judul}</td>
+            <td class="penanggung">${d.penanggungJawab}</td>
+            <td>
+                ${d.status}
+                <div class="progress-latar">
+                    <div class="progress-isi" style="width:${hitungProsen(d.status)}%"></div>
+                </div>
+                <span class="persen">${hitungProsen(d.status)}%</span>
+            </td>
+            <td>${tombolAksi(d, i)}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+function tampilkanDaftarTerfilter(){
+    let nilai = filterAktif?.nilai;
+    let adalahKembalikan = nilai === 'Dikembalikan';
+    document.getElementById('catatanKembalikan').classList.toggle('sembunyi', !adalahKembalikan);
+    document.getElementById('kepalaTabelBiasa').classList.toggle('sembunyi', adalahKembalikan);
+    document.getElementById('kepalaTabelKembalikan').classList.toggle('sembunyi', !adalahKembalikan);
+
+    let daftar = ambilDataTerfilter();
+    let tbody = document.getElementById('isiDaftar');
+    tbody.innerHTML = '';
+    daftar.forEach((d, i)=>{
+        let tr = document.createElement('tr');
+        if(adalahKembalikan){
+            tr.innerHTML = `
+                <td>${i+1}</td>
+                <td>${singkatanJenis(d.jenis)}</td>
+                <td>${d.nomor}</td>
+                <td>${d.tanggalDiajukan}</td>
+                <td>${d.judul}</td>
+                <td>${d.kekuranganDokumen||'-'}</td>
+                <td>${d.tanggalKembalikan||'-'}</td>
+                <td>${tombolAksi(d, dataProdukHukum.indexOf(d))}</td>
+            `;
+        } else {
+            tr.innerHTML = `
+                <td>${i+1}</td>
+                <td>${singkatanJenis(d.jenis)}</td>
+                <td>${d.nomor}</td>
+                <td>${d.tanggalDiajukan}</td>
+                <td>${d.judul}</td>
+                <td class="penanggung">${d.penanggungJawab}</td>
+                <td>${d.status}</td>
+                <td>${tombolAksi(d, dataProdukHukum.indexOf(d))}</td>
+            `;
+        }
+        tbody.appendChild(tr);
+    });
+}
+
+function tampilkanInventarisasi(){
+    let daftar = ambilDataTerfilter();
+    document.getElementById('jmlInventarisasi').textContent = daftar.length;
+    let tbody = document.getElementById('isiInventarisasi');
+    tbody.innerHTML = '';
+    daftar.forEach((d, i)=>{
+        let tr = document.createElement('tr');
+        let tglUndang = d.riwayat?.find(r=>r.status==='Diundangkan')?.waktu || '-';
+        tr.innerHTML = `
+            <td>${i+1}</td>
+            <td>${d.nomor}</td>
+            <td>${d.judul}</td>
+            <td>${d.tanggalDiajukan}</td>
+            <td>${tglUndang}</td>
+            <td>${d.penanggungJawab}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+function tombolAksi(data, indeks){
+    let ubah = bisaUbahStatus() ? `<button class="tombol tombol-peringatan tombol-kecil" onclick="bukaModalUbah(${indeks})">Ubah Status</button> ` : '';
+    let hapus = bisaHapus() ? `<button class="tombol tombol-bahaya tombol-kecil" onclick="hapusData(${indeks})">Hapus</button>` : '';
+    return ubah + hapus;
 }
 
 function simpanAjuan(e){
     e.preventDefault();
-    let noUrut = document.getElementById('nomorUrut').value;
-    let thn = document.getElementById('tahun').value;
-    let baru = {
-        id: Date.now(),
-        jenis: document.getElementById('jenis').value,
-        nomorUrut: noUrut,
-        nomor: `${noUrut}/${thn}`,
-        tahun: thn,
-        tanggalDiajukan: document.getElementById('tanggalDiajukan').value,
-        judul: document.getElementById('judul').value.trim(),
-        opdPengusul: document.getElementById('opdPengusul').value.trim(),
-        dokumenPendukung: document.getElementById('dokumenPendukung').value.trim(),
-        penanggungJawab: document.getElementById('penanggungJawab').value.trim(),
-        uraian: document.getElementById('uraian').value.trim(),
+    let jenis = document.getElementById('jenis').value;
+    let nomorUrut = document.getElementById('nomorUrut').value;
+    let tahun = document.getElementById('tahun').value;
+    let nomor = `${nomorUrut}/${tahun}`;
+    let tanggalDiajukan = document.getElementById('tanggalDiajukan').value;
+    let judul = document.getElementById('judul').value;
+    let penanggungJawab = document.getElementById('penanggungJawab').value;
+    let dokumenPendukung = document.getElementById('dokumenPendukung').value;
+    let uraian = document.getElementById('uraian').value;
+
+    if(!jenis || !nomorUrut || !tanggalDiajukan || !judul || !penanggungJawab){
+        alert('❌ Silakan lengkapi semua isian yang bertanda *');
+        return;
+    }
+
+    let dataBaru = {
+        jenis, nomor, tahun, tanggalDiajukan, judul, penanggungJawab, dokumenPendukung, uraian,
         status: 'Diusulkan',
-        riwayat: [{status:'Diusulkan', waktu: new Date().toLocaleString('id-ID'), catatan:'Ajuan awal diterima'}]
+        berkas: [...berkasAjuanSementara],
+        riwayat: [{status:'Diusulkan', waktu: new Date(tanggalDiajukan).toLocaleDateString('id-ID'), catatan:'Ajuan baru dibuat'}]
     };
-    dataProdukHukum.unshift(baru);
+
+    dataProdukHukum.unshift(dataBaru);
     simpanData();
-    tampilkanHalaman('dashboard');
-    e.target.reset();
-    document.getElementById('tahun').value = new Date().getFullYear();
-    document.getElementById('tanggalDiajukan').value = '';
     alert('✅ Ajuan berhasil disimpan!');
+    document.getElementById('formAjuan').reset();
+    berkasAjuanSementara = [];
+    document.getElementById('daftarBerkasAjuan').innerHTML = '';
+    tampilkanHalaman('dashboard');
 }
 
-function hitungProsen(status){
-    if(status === 'Dikembalikan') return 0;
-    let urutan = ['Diusulkan','Penyusunan','Pembahasan','Diproses','Ditetapkan','Diundangkan'];
-    let i = urutan.indexOf(status);
-    return Math.round(((i+1)/urutan.length)*100);
-}
-
-function singkatanJenis(j){
-    if(j.includes('Daerah')) return 'Perda';
-    if(j.includes('Gubernur')) return 'Pergub';
-    return 'SK';
-}
-
-function buatBarisTabel(d, idxAsli){
-    if(d.status === 'Dikembalikan'){
-        return `<tr style="background:#FEF0F0;">
-            <td>${idxAsli+1}</td>
-            <td><strong>${singkatanJenis(d.jenis)}</strong></td>
-            <td>${d.nomor}</td>
-            <td>${d.tanggalDiajukan || '-'}</td>
-            <td style="max-width:300px;">${d.judul}</td>
-            <td>${d.opdPengusul || '-'}</td>
-            <td style="color:#C0392B; font-weight:500;">⚠️ ${d.kekurangan || '-'}</td>
-            <td>${(d.riwayat && d.riwayat.length>0) ? d.riwayat[d.riwayat.length-1].waktu : '-'}</td>
-            <td>
-                <button class="tombol tombol-sekunder" style="padding:0.3rem 0.5rem; font-size:0.8rem;" onclick="bukaModal(${dataProdukHukum.indexOf(d)})">Ubah Status</button>
-                <button class="tombol tombol-peringatan" style="padding:0.3rem 0.5rem; font-size:0.8rem;" onclick="lihatRiwayat(${dataProdukHukum.indexOf(d)})">Riwayat</button>
-                <button class="tombol tombol-bahaya" style="padding:0.3rem 0.5rem; font-size:0.8rem;" onclick="hapusData(${dataProdukHukum.indexOf(d)})">Hapus</button>
-            </td>
-        </tr>`;
-    }
-    let prosen = hitungProsen(d.status);
-    return `<tr>
-        <td>${idxAsli+1}</td>
-        <td><strong>${singkatanJenis(d.jenis)}</strong></td>
-        <td>${d.nomor}</td>
-        <td>${d.tanggalDiajukan || '-'}</td>
-        <td style="max-width:300px;">${d.judul}</td>
-        <td>${d.opdPengusul || '-'}</td>
-        <td class="penanggung">👤 ${d.penanggungJawab}</td>
-        <td>
-            <strong>${d.status}</strong>
-            <span class="persen">${prosen}%</span>
-            <div class="progress-latar"><div class="progress-isi" style="width:${prosen}%"></div></div>
-            <div class="tahap">
-                ${TAHAPAN.filter(t=>t!=='Dikembalikan').map((t,i)=>`<span class="tahap-biji ${d.status===t?'selesai':(d.status!=='Dikembalikan'&&TAHAPAN.indexOf(d.status)>=i)?'selesai':'belum'}">${i+1}</span>`).join('')}
-                ${d.status==='Dikembalikan'?'<span class="tahap-biji kembalikan">⚠️</span>':''}
-            </div>
-        </td>
-        <td>
-            <button class="tombol tombol-sekunder" style="padding:0.3rem 0.5rem; font-size:0.8rem;" onclick="bukaModal(${dataProdukHukum.indexOf(d)})">Ubah Status</button>
-            <button class="tombol tombol-peringatan" style="padding:0.3rem 0.5rem; font-size:0.8rem;" onclick="lihatRiwayat(${dataProdukHukum.indexOf(d)})">Riwayat</button>
-            <button class="tombol tombol-bahaya" style="padding:0.3rem 0.5rem; font-size:0.8rem;" onclick="hapusData(${dataProdukHukum.indexOf(d)})">Hapus</button>
-        </td>
-    </tr>`;
-}
-
-function tampilkanDaftarUmum(){
-    let wadah = document.getElementById('daftarSemua');
-    wadah.innerHTML = dataProdukHukum.length===0
-        ? `<tr><td colspan="9" style="text-align:center; color:#6C757D; padding:2rem;">Belum ada data produk hukum yang diajukan.</td></tr>`
-        : dataProdukHukum.map((d,i)=>buatBarisTabel(d,i)).join('');
-}
-
-function tampilkanDaftarTerfilter(){
-    let wadah = document.getElementById('isiDaftar');
-    let saring = dataProdukHukum.filter(d=>d.status === filterAktif.nilai);
-
-    let catatan = document.getElementById('catatanKembalikan');
-    let kepalaBiasa = document.getElementById('kepalaTabelBiasa');
-    let kepalaKembalikan = document.getElementById('kepalaTabelKembalikan');
-
-    if(filterAktif.nilai === 'Dikembalikan'){
-        catatan.classList.remove('sembunyi');
-        kepalaBiasa.classList.add('sembunyi');
-        kepalaKembalikan.classList.remove('sembunyi');
-    } else {
-        catatan.classList.add('sembunyi');
-        kepalaBiasa.classList.remove('sembunyi');
-        kepalaKembalikan.classList.add('sembunyi');
-    }
-
-    wadah.innerHTML = saring.length===0
-        ? `<tr><td colspan="9" style="text-align:center; color:#6C757D; padding:2rem;">Belum ada data pada kategori ini.</td></tr>`
-        : saring.map((d,i)=>buatBarisTabel(d, dataProdukHukum.indexOf(d))).join('');
-}
-
-function tampilkanInventarisasi(){
-    let wadah = document.getElementById('isiInventarisasi');
-    let saring = dataProdukHukum.filter(d=>d.jenis === filterAktif.nilai && d.status === 'Diundangkan');
-    document.getElementById('jmlInventarisasi').textContent = saring.length;
-    wadah.innerHTML = saring.length===0
-        ? `<tr><td colspan="7" style="text-align:center; color:#6C757D; padding:2rem;">Belum ada produk hukum yang selesai diundangkan.</td></tr>`
-        : saring.map((d,i)=>`<tr>
-            <td>${i+1}</td>
-            <td><strong>${d.nomor}</strong></td>
-            <td>${d.judul}</td>
-            <td>${d.opdPengusul || '-'}</td>
-            <td>${d.tanggalDiajukan || '-'}</td>
-            <td>${(d.riwayat && d.riwayat.length>0) ? d.riwayat[d.riwayat.length-1].waktu : '-'}</td>
-            <td>${d.penanggungJawab}</td>
-        </tr>`).join('');
-}
-
-function bukaModal(idx){
+function bukaModalUbah(idx){
     indeksDiedit = idx;
-    document.getElementById('modalJudul').textContent = dataProdukHukum[idx].judul;
-    document.getElementById('statusBaru').value = dataProdukHukum[idx].status;
+    let d = dataProdukHukum[idx];
+    document.getElementById('modalJudul').textContent = d.judul + ' — (' + d.nomor + ')';
+    document.getElementById('statusBaru').value = d.status;
     document.getElementById('catatanStatus').value = '';
-    document.getElementById('kekuranganDokumen').value = dataProdukHukum[idx].kekurangan || '';
+    document.getElementById('kekuranganDokumen').value = d.kekuranganDokumen || '';
     cekStatusKembalikan();
+    tampilkanBerkasDiModal(d.berkas);
     document.getElementById('modalUbahStatus').classList.remove('sembunyi');
 }
+
 function tutupModal(){
     document.getElementById('modalUbahStatus').classList.add('sembunyi');
     indeksDiedit = null;
 }
+
+function cekStatusKembalikan(){
+    let nilai = document.getElementById('statusBaru').value;
+    document.getElementById('bagianKekurangan').classList.toggle('sembunyi', nilai !== 'Dikembalikan');
+}
+
 function simpanStatus(){
-    if(indeksDiedit===null) return;
+    if(!bisaUbahStatus()){ alert('❌ Hak akses tidak cukup!'); tutupModal(); return; }
     let statusBaru = document.getElementById('statusBaru').value;
-    let catatan = document.getElementById('catatanStatus').value.trim() || 'Perubahan status';
-    let kekurangan = document.getElementById('kekuranganDokumen').value.trim();
+    let catatan = document.getElementById('catatanStatus').value || 'Perubahan status';
+    let d = dataProdukHukum[indeksDiedit];
 
-    if(statusBaru === 'Dikembalikan' && !kekurangan){
-        alert('⚠️ Silakan cantumkan Kekurangan Dokumen / Alasan Dikembalikan!');
-        return;
-    }
+    d.status = statusBaru;
+    d.riwayat.push({status: statusBaru, waktu: new Date().toLocaleDateString('id-ID'), catatan});
 
-    dataProdukHukum[indeksDiedit].status = statusBaru;
     if(statusBaru === 'Dikembalikan'){
-        dataProdukHukum[indeksDiedit].kekurangan = kekurangan;
+        let kekurangan = document.getElementById('kekuranganDokumen').value.trim();
+        if(!kekurangan){ alert('❌ Isikan kekurangan dokumen!'); return; }
+        d.kekuranganDokumen = kekurangan;
+        d.tanggalKembalikan = new Date().toLocaleDateString('id-ID');
     } else {
-        delete dataProdukHukum[indeksDiedit].kekurangan;
+        delete d.kekuranganDokumen;
+        delete d.tanggalKembalikan;
     }
-    dataProdukHukum[indeksDiedit].riwayat.push({status:statusBaru, waktu: new Date().toLocaleString('id-ID'), catatan:catatan});
+
     simpanData();
-    tampilkanHalaman('dashboard');
     tutupModal();
+    tampilkanHalaman('dashboard');
     alert('✅ Status berhasil diperbarui!');
 }
-function lihatRiwayat(idx){
-    let d = dataProdukHukum[idx];
-    let riwayat = d.riwayat.map(r=>`• ${r.waktu} — ${r.status}\n  Catatan: ${r.catatan}`).join('\n\n');
-    let infoKekurangan = d.kekurangan ? `\n\n⚠️ KEKURANGAN DOKUMEN:\n${d.kekurangan}` : '';
-    alert(`📜 RIWAYAT PERUBAHAN STATUS:\n${d.judul}\n\n${riwayat}${infoKekurangan}`);
-}
+
 function hapusData(idx){
-    if(confirm('⚠️ Yakin ingin menghapus data ini? Tindakan ini tidak dapat dibatalkan.')){
-        dataProdukHukum.splice(idx,1);
-        simpanData();
-        tampilkanHalaman('dashboard');
-    }
+    if(!bisaHapus()){ alert('❌ Hak akses tidak cukup!'); return; }
+    if(!confirm('⚠️ Yakin ingin menghapus data ini? Tindakan ini tidak dapat dibatalkan.')) return;
+    dataProdukHukum.splice(idx, 1);
+    simpanData();
+    tampilkanHalaman('dashboard');
+    alert('✅ Data berhasil dihapus!');
 }
 </script>
 </body>
